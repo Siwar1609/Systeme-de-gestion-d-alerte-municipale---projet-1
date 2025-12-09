@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${pageTitle}">Agents</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th { background-color: #2c3e50; color: white; }
+        tr:nth-child(even) { background-color: #f2f2f2; }
+        .btn {
+            padding: 5px 10px;
+            margin: 2px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            color: white;
+        }
+        .btn-activate { background: #27ae60; }
+        .btn-deactivate { background: #e74c3c; }
+        .btn-reset { background: #3498db; }
+        .nav { margin-bottom: 20px; }
+        .nav a {
+            background: #2c3e50;
+            color: white;
+            padding: 10px 15px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+<div class="nav">
+    <a th:href="@{/admin/dashboard}">← Retour au dashboard</a>
+    <a th:href="@{/admin/agents/create}">➕ Créer un nouvel agent</a>
+</div>
+
+<h1 th:text="${pageTitle}">Gestion des Agents</h1>
+
+<div th:if="${success}" style="background: #d4edda; color: #155724; padding: 10px; border-radius: 5px; margin: 10px 0;"
+     th:text="${success}"></div>
+<div th:if="${error}" style="background: #f8d7da; color: #721c24; padding: 10px; border-radius: 5px; margin: 10px 0;"
+     th:text="${error}"></div>
+<div th:if="${info}" style="background: #d1ecf1; color: #0c5460; padding: 10px; border-radius: 5px; margin: 10px 0;"
+     th:text="${info}"></div>
+
+<table>
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Nom</th>
+        <th>Email</th>
+        <th>Statut</th>
+        <th>Actions</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="agent : ${agents}">
+        <td th:text="${agent.id}"></td>
+        <td th:text="${agent.nom}"></td>
+        <td th:text="${agent.email}"></td>
+        <td>
+            <span th:if="${agent.compteActive}" style="color: green;">✓ Actif</span>
+            <span th:unless="${agent.compteActive}" style="color: red;">✗ Inactif</span>
+        </td>
+        <td>
+            <form th:action="@{/admin/agents/{id}/toggle-status(id=${agent.id})}" method="post" style="display: inline;">
+                <button type="submit"
+                        th:class="${agent.compteActive} ? 'btn btn-deactivate' : 'btn btn-activate'"
+                        th:text="${agent.compteActive} ? 'Désactiver' : 'Activer'">
+                </button>
+            </form>
+            <form th:action="@{/admin/agents/{id}/reset-password(id=${agent.id})}" method="post" style="display: inline;">
+                <button type="submit" class="btn btn-reset">Réinitialiser MDP</button>
+            </form>
+        </td>
+    </tr>
+    </tbody>
+</table>
+
+<p th:if="${#lists.isEmpty(agents)}" style="color: #7f8c8d; text-align: center; margin-top: 50px;">
+    Aucun agent municipal enregistré.
+</p>
+</body>
+</html>

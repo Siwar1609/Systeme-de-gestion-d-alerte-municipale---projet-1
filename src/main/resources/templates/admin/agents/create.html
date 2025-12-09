@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${pageTitle}">Créer Agent</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 600px; margin: 40px auto; padding: 20px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input { width: 100%; padding: 8px; box-sizing: border-box; }
+        .error { color: red; font-size: 0.9em; margin-top: 5px; }
+        .btn-submit {
+            background: #2c3e50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .nav { margin-bottom: 20px; }
+        .nav a {
+            background: #7f8c8d;
+            color: white;
+            padding: 8px 15px;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+<div class="nav">
+    <a th:href="@{/admin/agents}">← Retour à la liste</a>
+</div>
+
+<h1 th:text="${pageTitle}">Créer un Agent Municipal</h1>
+
+<div th:if="${error}" style="background: #f8d7da; color: #721c24; padding: 10px; border-radius: 5px; margin: 10px 0;"
+     th:text="${error}"></div>
+
+<form th:action="@{/admin/agents/create}" method="post" th:object="${agentRequest}">
+    <div class="form-group">
+        <label for="nom">Nom complet *</label>
+        <input type="text" id="nom" th:field="*{nom}" required>
+        <div class="error" th:if="${#fields.hasErrors('nom')}" th:errors="*{nom}"></div>
+    </div>
+
+    <div class="form-group">
+        <label for="email">Adresse email *</label>
+        <input type="email" id="email" th:field="*{email}" required>
+        <div class="error" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
+    </div>
+
+    <p style="background: #f8f9fa; padding: 15px; border-radius: 5px; font-size: 0.9em;">
+        <strong>Note :</strong> Un mot de passe temporaire sera généré automatiquement
+        et envoyé par email à l'agent.
+    </p>
+
+    <button type="submit" class="btn-submit">Créer l'agent</button>
+</form>
+</body>
+</html>

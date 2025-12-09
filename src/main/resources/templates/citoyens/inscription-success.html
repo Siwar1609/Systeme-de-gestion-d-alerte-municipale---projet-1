@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${pageTitle}">Inscription Réussie</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .success-container {
+            min-height: 70vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .success-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            padding: 3rem;
+            text-align: center;
+            border-top: 5px solid #28a745;
+        }
+        .success-icon {
+            font-size: 4rem;
+            color: #28a745;
+            margin-bottom: 1.5rem;
+        }
+    </style>
+</head>
+<body class="bg-light">
+<div class="success-container">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="success-card">
+                    <div class="success-icon">✅</div>
+
+                    <h2 class="mb-3">Inscription Réussie !</h2>
+
+                    <div th:if="${success}" class="alert alert-success" role="alert">
+                        <h5 th:text="${success}"></h5>
+                    </div>
+
+                    <p class="mb-3">Nous avons envoyé un email de vérification à votre adresse.</p>
+                    <p class="text-muted mb-4">
+                        Veuillez vérifier votre boîte de réception et cliquer sur le lien de vérification
+                        pour activer votre compte.
+                    </p>
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                        <!-- ✅ CORRECTION : Changer /citoyens/login en /login -->
+                        <a th:href="@{/login}" class="btn btn-primary me-md-2">
+                            Se connecter
+                        </a>
+                        <a th:href="@{/citoyens/renvoyer-verification}" class="btn btn-outline-secondary">
+                            Renvoyer l'email
+                        </a>
+                    </div>
+
+                    <div class="mt-4">
+                        <small class="text-muted">
+                            Vous n'avez pas reçu l'email ?
+                            <a th:href="@{/citoyens/renvoyer-verification}" class="text-decoration-none">
+                                Cliquez ici pour le renvoyer
+                            </a>
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

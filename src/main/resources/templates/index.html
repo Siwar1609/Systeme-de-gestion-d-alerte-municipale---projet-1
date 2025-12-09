@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Signalement Citoyen - Améliorez votre ville</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --secondary: #3a0ca3;
+            --accent: #4cc9f0;
+            --success: #4ade80;
+            --dark: #1e293b;
+            --light: #f8fafc;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .navbar-brand {
+            font-weight: 800;
+            font-size: 1.8rem;
+            color: var(--primary) !important;
+        }
+
+        .hero-section {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 6rem 0;
+            clip-path: polygon(0 0, 100% 0, 100% 90%, 0 100%);
+        }
+
+        .hero-title {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+        }
+
+        .hero-subtitle {
+            font-size: 1.3rem;
+            opacity: 0.9;
+            margin-bottom: 2rem;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .btn-primary-custom {
+            background: white;
+            color: var(--primary);
+            padding: 15px 30px;
+            font-weight: 600;
+            border-radius: 50px;
+            border: none;
+            transition: all 0.3s;
+        }
+
+        .btn-primary-custom:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+
+        .btn-outline-custom {
+            background: transparent;
+            color: white;
+            border: 2px solid white;
+            padding: 15px 30px;
+            font-weight: 600;
+            border-radius: 50px;
+            transition: all 0.3s;
+        }
+
+        .btn-outline-custom:hover {
+            background: white;
+            color: var(--primary);
+        }
+
+        .features-section {
+            padding: 5rem 0;
+            background: var(--light);
+        }
+
+        .feature-card {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            height: 100%;
+            transition: transform 0.3s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+        }
+
+        .problem-category {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border-left: 5px solid var(--primary);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+        }
+
+        .how-it-works {
+            padding: 5rem 0;
+            background: white;
+        }
+
+        .step-card {
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .step-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 60px;
+            height: 60px;
+            background: var(--primary);
+            color: white;
+            border-radius: 50%;
+            font-size: 1.8rem;
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+        }
+
+        .stats-section {
+            background: linear-gradient(135deg, var(--dark) 0%, #2d3748 100%);
+            color: white;
+            padding: 4rem 0;
+        }
+
+        .stat-number {
+            font-size: 3rem;
+            font-weight: 800;
+            color: var(--accent);
+        }
+
+        .footer {
+            background: var(--dark);
+            color: white;
+            padding: 3rem 0;
+        }
+
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2.5rem;
+            }
+            .cta-buttons {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+<!-- Navigation -->
+<nav class="navbar navbar-expand-lg navbar-light bg-white sticky-top shadow-sm">
+    <div class="container">
+        <a class="navbar-brand" th:href="@{/}">
+            <i class="fas fa-bullhorn me-2"></i>SignalementCitoyen
+        </a>
+        <div class="navbar-nav ms-auto">
+            <a class="nav-link" th:href="@{/#features}">Fonctionnalités</a>
+            <a class="nav-link" th:href="@{/#how-it-works}">Comment ça marche</a>
+            <a class="btn btn-outline-primary ms-3" th:href="@{/login}">
+                <i class="fas fa-sign-in-alt me-2"></i>Se connecter
+            </a>
+        </div>
+    </div>
+</nav>
+
+<!-- Hero Section -->
+<section class="hero-section" id="hero">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h1 class="hero-title">Votre ville, votre voix</h1>
+                <p class="hero-subtitle">
+                    Signalez les problèmes de votre quartier et participez activement
+                    à l'amélioration de votre ville. Déchets, éclairage, voirie, propreté...
+                    chaque signalement compte !
+                </p>
+                <div class="cta-buttons">
+                    <a th:href="@{/citoyens/inscription}" class="btn btn-primary-custom">
+                        <i class="fas fa-user-plus me-2"></i>S'inscrire comme citoyen
+                    </a>
+                    <a th:href="@{/login}" class="btn btn-outline-custom">
+                        <i class="fas fa-sign-in-alt me-2"></i>Se connecter
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-6 text-center">
+                <img src="https://cdn.pixabay.com/photo/2017/08/06/22/01/volunteer-2597367_1280.jpg"
+                     alt="Citoyens actifs"
+                     class="img-fluid rounded-3 shadow-lg"
+                     style="max-height: 400px;">
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="features-section" id="features">
+    <div class="container">
+        <div class="row mb-5">
+            <div class="col text-center">
+                <h2 class="display-4 fw-bold mb-3">Une plateforme complète</h2>
+                <p class="lead">Pour signaler, suivre et résoudre les problèmes de votre ville</p>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-map-marker-alt"></i>
+                    </div>
+                    <h4>Signalement géolocalisé</h4>
+                    <p>Signalez précisément l'emplacement du problème sur une carte interactive.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-camera"></i>
+                    </div>
+                    <h4>Ajout de photos</h4>
+                    <p>Joignez des photos pour illustrer le problème et faciliter sa prise en charge.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h4>Suivi en temps réel</h4>
+                    <p>Suivez l'évolution de vos signalements et recevez des notifications.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Problem Categories -->
+<section class="container py-5">
+    <div class="row mb-5">
+        <div class="col text-center">
+            <h2 class="display-5 fw-bold mb-3">Quels problèmes pouvez-vous signaler ?</h2>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="problem-category">
+                <h5><i class="fas fa-trash text-danger me-2"></i>Propreté & Déchets</h5>
+                <p>Déchets sauvages, poubelles pleines, encombrants, nettoyage insuffisant...</p>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="problem-category">
+                <h5><i class="fas fa-road text-warning me-2"></i>Voirie & Infrastructure</h5>
+                <p>Nids-de-poule, trottoirs abîmés, signalisation défectueuse, travaux...</p>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="problem-category">
+                <h5><i class="fas fa-lightbulb text-warning me-2"></i>Éclairage public</h5>
+                <p>Lampadaires défectueux, éclairage insuffisant, pannes d'éclairage...</p>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="problem-category">
+                <h5><i class="fas fa-tree text-success me-2"></i>Espaces verts</h5>
+                <p>Taille des arbres, entretien des parcs, pelouses, bancs publics...</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- How It Works -->
+<section class="how-it-works" id="how-it-works">
+    <div class="container">
+        <div class="row mb-5">
+            <div class="col text-center">
+                <h2 class="display-4 fw-bold mb-3">Comment ça marche ?</h2>
+                <p class="lead">4 étapes simples pour améliorer votre ville</p>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-3">
+                <div class="step-card">
+                    <div class="step-number">1</div>
+                    <h4>Inscrivez-vous</h4>
+                    <p>Créez votre compte citoyen en 2 minutes avec votre email.</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="step-card">
+                    <div class="step-number">2</div>
+                    <h4>Signalez</h4>
+                    <p>Prenez une photo et décrivez le problème rencontré.</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="step-card">
+                    <div class="step-number">3</div>
+                    <h4>Suivez</h4>
+                    <p>Consultez l'avancement de votre signalement en temps réel.</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="step-card">
+                    <div class="step-number">4</div>
+                    <h4>Contribuez</h4>
+                    <p>Votre ville s'améliore grâce à votre participation active !</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Stats Section -->
+<section class="stats-section">
+    <div class="container">
+        <div class="row text-center">
+            <div class="col-md-3">
+                <div class="stat-number" data-count="1000">0</div>
+                <p>Citoyens actifs</p>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-number" data-count="500">0</div>
+                <p>Signalements traités</p>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-number" data-count="24">0</div>
+                <p>Heures de réponse moyenne</p>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-number" data-count="95">0</div>
+                <p>% de satisfaction</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Final CTA -->
+<section class="py-5 bg-light">
+    <div class="container text-center">
+        <h2 class="display-5 fw-bold mb-4">Prêt à améliorer votre ville ?</h2>
+        <p class="lead mb-4">Rejoignez notre communauté de citoyens engagés</p>
+        <div class="cta-buttons justify-content-center">
+            <a th:href="@{/citoyens/inscription}" class="btn btn-primary-custom btn-lg">
+                <i class="fas fa-user-plus me-2"></i>Devenir citoyen actif
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4">
+                <h5><i class="fas fa-bullhorn me-2"></i>SignalementCitoyen</h5>
+                <p>Votre outil pour une ville plus propre et plus sûre.</p>
+            </div>
+            <div class="col-md-4">
+                <h5>Liens utiles</h5>
+                <ul class="list-unstyled">
+                    <li><a th:href="@{/}" class="text-white-50 text-decoration-none">Accueil</a></li>
+                    <li><a th:href="@{/login}" class="text-white-50 text-decoration-none">Connexion</a></li>
+                    <li><a th:href="@{/citoyens/inscription}" class="text-white-50 text-decoration-none">Inscription</a></li>
+                </ul>
+            </div>
+            <div class="col-md-4">
+                <h5>Contact</h5>
+                <p class="text-white-50">support@signalementcitoyen.fr</p>
+            </div>
+        </div>
+        <hr class="bg-white-50">
+        <div class="text-center">
+            <p class="mb-0">&copy; 2024 SignalementCitoyen. Tous droits réservés.</p>
+        </div>
+    </div>
+</footer>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Animation script for stats -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Animate stats counter
+        const statElements = document.querySelectorAll('.stat-number');
+
+        statElements.forEach(stat => {
+            const target = parseInt(stat.getAttribute('data-count'));
+            let current = 0;
+            const increment = target / 100;
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= target) {
+                    stat.textContent = target;
+                    clearInterval(timer);
+                } else {
+                    stat.textContent = Math.floor(current);
+                }
+            }, 20);
+        });
+
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href');
+                if (targetId === '#') return;
+
+                const targetElement = document.querySelector(targetId);
+                if (targetElement) {
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 80,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+    });
+</script>
+</body>
+</html>
