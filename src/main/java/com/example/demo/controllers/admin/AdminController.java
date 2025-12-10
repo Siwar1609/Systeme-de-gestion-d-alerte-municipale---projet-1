@@ -1,9 +1,9 @@
 package com.example.demo.controllers.admin;
 
 import com.example.demo.dto.admin.AgentCreationRequest;
-import com.example.demo.models.Utilisateur;
-import com.example.demo.models.enums.RoleEnum;
-import com.example.demo.repositories.UtilisateurRepository;
+import com.example.demo.services.admin.AdminDashboardService;
+import com.example.demo.services.admin.AdminAgentService;
+import com.example.demo.services.admin.AdminCitoyenService;
 import com.example.demo.services.admin.AdminService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
@@ -14,37 +14,31 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.util.List;
-
 @Controller
 @RequestMapping("/admin")
 @RequiredArgsConstructor
 public class AdminController {
 
     private final AdminService adminService;
-    private final UtilisateurRepository utilisateurRepository;
+    private final AdminDashboardService adminDashboardService;
+    private final AdminAgentService adminAgentService;
+    private final AdminCitoyenService adminCitoyenService;
 
     // ==================== MIDDLEWARE ====================
 
-    /**
-     * Vérifie si l'utilisateur est administrateur
-     */
-    private boolean isAdmin(HttpSession session) {
-        if (session == null) return false;
-        Object roleObj = session.getAttribute("userRole");
-        return roleObj instanceof RoleEnum && roleObj == RoleEnum.ADMINISTRATEUR;
+    @ModelAttribute
+    public void addCommonAttributes(HttpSession session, Model model) {
+        if (adminService.isAdmin(session)) {
+            model.addAttribute("userNom", session.getAttribute("userNom"));
+            model.addAttribute("userEmail", session.getAttribute("userEmail"));
+        }
     }
 
     /**
-     * Redirige si l'utilisateur n'est pas admin
+     * Vérifie l'accès admin et redirige si nécessaire
      */
     private String checkAdminAccess(HttpSession session, Model model) {
-        if (!isAdmin(session)) {
-            model.addAttribute("pageTitle", "Accès Refusé");
-            model.addAttribute("error", "Accès réservé aux administrateurs");
-            return "error/access-denied";
-        }
-        return null;
+        return adminService.checkAdminAccess(session, model);
     }
 
     // ==================== DASHBOARD ADMIN ====================
@@ -55,20 +49,8 @@ public class AdminController {
         if (error != null) return error;
 
         try {
-            // Statistiques
-            long totalCitoyens = adminService.getAllCitoyens().size();
-            long totalAgents = adminService.getAllAgents().size();
-            long citoyensActifs = utilisateurRepository.findByRoleAndCompteActive(RoleEnum.CITOYEN, true).size();
-            long agentsActifs = utilisateurRepository.findByRoleAndCompteActive(RoleEnum.AGENT_MUNICIPAL, true).size();
-
-            model.addAttribute("totalCitoyens", totalCitoyens);
-            model.addAttribute("totalAgents", totalAgents);
-            model.addAttribute("citoyensActifs", citoyensActifs);
-            model.addAttribute("agentsActifs", agentsActifs);
-            model.addAttribute("userNom", session.getAttribute("userNom"));
-            model.addAttribute("userEmail", session.getAttribute("userEmail"));
+            adminDashboardService.prepareDashboardData(model);
             model.addAttribute("pageTitle", "Tableau de Bord Administrateur");
-
             return "admin/dashboard";
 
         } catch (Exception e) {
@@ -85,8 +67,7 @@ public class AdminController {
         if (error != null) return error;
 
         try {
-            List<Utilisateur> agents = adminService.getAllAgents();
-            model.addAttribute("agents", agents);
+            adminAgentService.prepareAgentsList(model);
             model.addAttribute("pageTitle", "Gestion des Agents Municipaux");
             return "admin/agents/list";
 
@@ -115,13 +96,11 @@ public class AdminController {
             HttpSession session,
             RedirectAttributes redirectAttributes) {
 
-        // Vérifier l'accès admin
-        if (!isAdmin(session)) {
+        if (!adminService.isAdmin(session)) {
             redirectAttributes.addFlashAttribute("error", "Accès non autorisé");
             return "redirect:/login";
         }
 
-        // Gérer les erreurs de validation
         if (bindingResult.hasErrors()) {
             redirectAttributes.addFlashAttribute(
                     "org.springframework.validation.BindingResult.agentRequest",
@@ -131,39 +110,7 @@ public class AdminController {
             return "redirect:/admin/agents/create";
         }
 
-        try {
-            // Créer l'agent
-            adminService.creerAgent(request);
-
-            // Succès
-            redirectAttributes.addFlashAttribute("success",
-                    " Agent créé avec succès ! Les identifiants ont été envoyés par email.");
-
-            return "redirect:/admin/agents";
-
-        } catch (IllegalArgumentException e) {
-            // Erreur de validation (email déjà existant)
-            redirectAttributes.addFlashAttribute("error", " " + e.getMessage());
-            redirectAttributes.addFlashAttribute("agentRequest", request);
-            return "redirect:/admin/agents/create";
-
-        } catch (RuntimeException e) {
-            // Autres erreurs (SMTP, etc.)
-            String errorMsg = e.getMessage();
-
-            if (errorMsg.contains("email") || errorMsg.contains("Email") ||
-                    errorMsg.contains("SMTP") || errorMsg.contains("mail")) {
-
-                redirectAttributes.addFlashAttribute("warning",
-                        "️ Agent créé mais problème d'envoi d'email. " +
-                                "Les identifiants apparaissent dans les logs de l'application.");
-            } else {
-                redirectAttributes.addFlashAttribute("error", " " + errorMsg);
-            }
-
-            redirectAttributes.addFlashAttribute("agentRequest", request);
-            return "redirect:/admin/agents/create";
-        }
+        return adminAgentService.handleAgentCreation(request, redirectAttributes);
     }
 
     @PostMapping("/agents/{id}/toggle-status")
@@ -172,26 +119,12 @@ public class AdminController {
             HttpSession session,
             RedirectAttributes redirectAttributes) {
 
-        if (!isAdmin(session)) {
+        if (!adminService.isAdmin(session)) {
             redirectAttributes.addFlashAttribute("error", "Accès non autorisé");
             return "redirect:/login";
         }
 
-        try {
-            adminService.toggleAgentStatus(id);
-            redirectAttributes.addFlashAttribute("success",
-                    " Statut de l'agent modifié avec succès.");
-
-        } catch (IllegalArgumentException e) {
-            redirectAttributes.addFlashAttribute("error", " " + e.getMessage());
-        } catch (IllegalStateException e) {
-            redirectAttributes.addFlashAttribute("error", " " + e.getMessage());
-        } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error",
-                    " Erreur lors du changement de statut: " + e.getMessage());
-        }
-
-        return "redirect:/admin/agents";
+        return adminAgentService.handleToggleAgentStatus(id, redirectAttributes);
     }
 
     @PostMapping("/agents/{id}/reset-password")
@@ -200,29 +133,12 @@ public class AdminController {
             HttpSession session,
             RedirectAttributes redirectAttributes) {
 
-        if (!isAdmin(session)) {
+        if (!adminService.isAdmin(session)) {
             redirectAttributes.addFlashAttribute("error", "Accès non autorisé");
             return "redirect:/login";
         }
 
-        try {
-            String newPassword = adminService.resetAgentPassword(id);
-
-            redirectAttributes.addFlashAttribute("info",
-                    "🔑 Mot de passe réinitialisé. Nouveau mot de passe: " + newPassword);
-            redirectAttributes.addFlashAttribute("passwordInfo",
-                    "Note: Le nouveau mot de passe a été envoyé par email à l'agent.");
-
-        } catch (IllegalArgumentException e) {
-            redirectAttributes.addFlashAttribute("error", " " + e.getMessage());
-        } catch (IllegalStateException e) {
-            redirectAttributes.addFlashAttribute("error", " " + e.getMessage());
-        } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error",
-                    " Erreur lors de la réinitialisation: " + e.getMessage());
-        }
-
-        return "redirect:/admin/agents";
+        return adminAgentService.handleResetAgentPassword(id, redirectAttributes);
     }
 
     // ==================== GESTION CITOYENS ====================
@@ -233,8 +149,7 @@ public class AdminController {
         if (error != null) return error;
 
         try {
-            List<Utilisateur> citoyens = adminService.getAllCitoyens();
-            model.addAttribute("citoyens", citoyens);
+            adminCitoyenService.prepareCitoyensList(model);
             model.addAttribute("pageTitle", "Gestion des Citoyens");
             return "admin/citoyens/list";
 
@@ -250,34 +165,12 @@ public class AdminController {
             HttpSession session,
             RedirectAttributes redirectAttributes) {
 
-        if (!isAdmin(session)) {
+        if (!adminService.isAdmin(session)) {
             redirectAttributes.addFlashAttribute("error", "Accès non autorisé");
             return "redirect:/login";
         }
 
-        try {
-            Utilisateur citoyen = utilisateurRepository.findById(id)
-                    .orElseThrow(() -> new IllegalArgumentException("Citoyen non trouvé"));
-
-            if (citoyen.getRole() != RoleEnum.CITOYEN) {
-                throw new IllegalStateException("Cet utilisateur n'est pas un citoyen");
-            }
-
-            citoyen.setCompteActive(!citoyen.isCompteActive());
-            utilisateurRepository.save(citoyen);
-
-            redirectAttributes.addFlashAttribute("success",
-                    "✅ Statut du citoyen modifié: " +
-                            (citoyen.isCompteActive() ? "Activé" : "Désactivé"));
-
-        } catch (IllegalArgumentException | IllegalStateException e) {
-            redirectAttributes.addFlashAttribute("error", " " + e.getMessage());
-        } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error",
-                    " Erreur lors du changement de statut: " + e.getMessage());
-        }
-
-        return "redirect:/admin/citoyens";
+        return adminCitoyenService.handleToggleCitoyenStatus(id, redirectAttributes);
     }
 
     @PostMapping("/citoyens/{id}/delete")
@@ -286,32 +179,12 @@ public class AdminController {
             HttpSession session,
             RedirectAttributes redirectAttributes) {
 
-        if (!isAdmin(session)) {
+        if (!adminService.isAdmin(session)) {
             redirectAttributes.addFlashAttribute("error", "Accès non autorisé");
             return "redirect:/login";
         }
 
-        try {
-            Utilisateur citoyen = utilisateurRepository.findById(id)
-                    .orElseThrow(() -> new IllegalArgumentException("Citoyen non trouvé"));
-
-            if (citoyen.getRole() != RoleEnum.CITOYEN) {
-                throw new IllegalStateException("Cet utilisateur n'est pas un citoyen");
-            }
-
-            utilisateurRepository.delete(citoyen);
-
-            redirectAttributes.addFlashAttribute("success",
-                    "✅ Citoyen supprimé avec succès");
-
-        } catch (IllegalArgumentException | IllegalStateException e) {
-            redirectAttributes.addFlashAttribute("error", " " + e.getMessage());
-        } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error",
-                    " Erreur lors de la suppression: " + e.getMessage());
-        }
-
-        return "redirect:/admin/citoyens";
+        return adminCitoyenService.handleDeleteCitoyen(id, redirectAttributes);
     }
 
     // ==================== PROFIL ADMIN ====================
@@ -322,11 +195,7 @@ public class AdminController {
         if (error != null) return error;
 
         try {
-            String adminEmail = (String) session.getAttribute("userEmail");
-            Utilisateur admin = utilisateurRepository.findByEmail(adminEmail)
-                    .orElseThrow(() -> new RuntimeException("Admin non trouvé"));
-
-            model.addAttribute("admin", admin);
+            adminDashboardService.prepareAdminProfile(session, model);
             model.addAttribute("pageTitle", "Mon Profil Administrateur");
             return "admin/profile";
 
@@ -344,11 +213,11 @@ public class AdminController {
         return "redirect:/login?logout=admin";
     }
 
-    // ==================== REDIRECTION SI ADMIN DÉJÀ CONNECTÉ ====================
+    // ==================== REDIRECTION ====================
 
     @GetMapping("/")
     public String redirectAdmin(HttpSession session) {
-        if (isAdmin(session)) {
+        if (adminService.isAdmin(session)) {
             return "redirect:/admin/dashboard";
         }
         return "redirect:/login";
