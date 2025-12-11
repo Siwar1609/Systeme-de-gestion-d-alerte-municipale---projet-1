@@ -5,6 +5,7 @@ import com.example.demo.models.Utilisateur;
 import com.example.demo.models.enums.RoleEnum;
 import com.example.demo.repositories.UtilisateurRepository;
 import com.example.demo.services.EmailService;
+import com.example.demo.services.agent.AgentPasswordService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -62,11 +63,11 @@ public class AdminAgentService {
             emailService.envoyerIdentifiantsAgent(savedAgent, tempPassword);
 
             redirectAttributes.addFlashAttribute("success",
-                    "✅ Agent créé avec succès ! Les identifiants ont été envoyés par email.");
+                    " Agent créé avec succès ! Les identifiants ont été envoyés par email.");
             return "redirect:/admin/agents";
 
         } catch (IllegalArgumentException e) {
-            redirectAttributes.addFlashAttribute("error", "❌ " + e.getMessage());
+            redirectAttributes.addFlashAttribute("error", "  " + e.getMessage());
             redirectAttributes.addFlashAttribute("agentRequest", request);
             return "redirect:/admin/agents/create";
 

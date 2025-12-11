@@ -1,19 +1,14 @@
-package com.example.demo.controllers;
+package com.example.demo.controllers.citoyen;
 
-import com.example.demo.dto.ApiResponse;
 import com.example.demo.dto.InscriptionRequest;
 import com.example.demo.services.InscriptionService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import java.util.HashMap;
-import java.util.Map;
 
 @Controller
 @RequestMapping("/citoyens")

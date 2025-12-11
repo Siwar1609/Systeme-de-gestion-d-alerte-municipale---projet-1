@@ -32,11 +32,11 @@ public class AdminSeeder implements CommandLineRunner {
             admin.setTokenVerification(null);
 
             utilisateurRepository.save(admin);
-            log.info("✅ ADMIN initial créé avec succès !");
-            log.info("📧 Email: {}", adminEmail);
-            log.info("🔑 Mot de passe: Admin123!");
+            log.info(" ADMIN initial créé avec succès !");
+            log.info("Email: {}", adminEmail);
+            log.info(" Mot de passe: Admin123!");
         } else {
-            log.info("✅ ADMIN déjà présent dans la base de données");
+            log.info(" ADMIN déjà présent dans la base de données");
         }
     }
 }

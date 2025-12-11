@@ -1,4 +1,4 @@
-package com.example.demo.services.admin;
+package com.example.demo.services.agent;
 
 import com.example.demo.models.Utilisateur;
 import com.example.demo.services.EmailService;

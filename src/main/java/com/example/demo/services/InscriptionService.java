@@ -22,7 +22,6 @@ public class InscriptionService {
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
 
-    // ... VOS MÉTHODES EXISTANTES ...
 
     /**
      * Trouver un utilisateur par email
@@ -69,7 +68,7 @@ public class InscriptionService {
         return true;
     }
 
-    // ... VOS AUTRES MÉTHODES EXISTANTES ...
+
 
     @Transactional
     public Utilisateur inscrireCitoyen(String email, String nom, String motDePasse) {

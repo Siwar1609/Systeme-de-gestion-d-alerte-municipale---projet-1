@@ -1,4 +1,4 @@
-package com.example.demo.controllers;
+package com.example.demo.controllers.citoyen;
 
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;

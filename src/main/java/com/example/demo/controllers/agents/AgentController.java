@@ -1,4 +1,4 @@
-package com.example.demo.controllers;
+package com.example.demo.controllers.agents;
 import com.example.demo.models.enums.RoleEnum;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
