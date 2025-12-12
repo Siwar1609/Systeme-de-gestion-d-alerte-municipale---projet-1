@@ -28,7 +28,7 @@
                 <div class="card-body">
                     <h5 class="card-title">📝 Signaler un incident</h5>
                     <p class="card-text">Signalez un problème dans votre quartier.</p>
-                    <a href="#" class="btn btn-primary">Signaler</a>
+                    <a th:href="@{/citoyens/incidents/nouveau}" class="btn btn-primary">Signaler</a>
                 </div>
             </div>
         </div>
@@ -37,7 +37,7 @@
                 <div class="card-body">
                     <h5 class="card-title">📊 Mes signalements</h5>
                     <p class="card-text">Consultez l'état de vos signalements.</p>
-                    <a href="#" class="btn btn-outline-primary">Voir</a>
+                    <a th:href="@{/citoyens/incidents/mes-signalements}" class="btn btn-outline-primary">Voir</a>
                 </div>
             </div>
         </div>
