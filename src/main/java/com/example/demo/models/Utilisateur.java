@@ -38,6 +38,13 @@ public class Utilisateur {
     private LocalDateTime dateExpirationToken;
 
     private boolean compteActive = false;
+    @ManyToOne
+    @JoinColumn(name = "quartier_id")
+    private Quartier quartier;  // Si role = CITOYEN
+
+    @ManyToOne
+    @JoinColumn(name = "service_id")
+    private Service service;  // Si role = AGENT
 
     // RELATIONS JPA
     @OneToMany(mappedBy = "citoyen", cascade = CascadeType.ALL)

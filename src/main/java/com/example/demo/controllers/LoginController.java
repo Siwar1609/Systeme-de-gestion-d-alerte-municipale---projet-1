@@ -70,7 +70,7 @@ public class LoginController {
 
             Utilisateur user = userOpt.get();
 
-            // ✅ Vérifier si l'utilisateur peut se connecter
+            // Vérifier si l'utilisateur peut se connecter
             if (!inscriptionService.peutSeConnecter(user)) {
                 if (user.getRole() == RoleEnum.CITOYEN) {
                     redirectAttributes.addFlashAttribute("error",

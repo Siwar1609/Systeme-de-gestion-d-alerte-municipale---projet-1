@@ -18,6 +18,7 @@
         .stat-card.agents { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
         .stat-card.active-citoyens { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
         .stat-card.active-agents { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
+        .stat-card.quartiers { background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); }
         .stat-number {
             font-size: 2.5rem;
             font-weight: bold;
@@ -32,6 +33,17 @@
             transition: all 0.3s;
             box-shadow: 0 10px 20px rgba(0,0,0,0.2);
         }
+        .btn-quartier {
+            background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+            border: none;
+            color: white;
+            font-weight: bold;
+        }
+        .btn-quartier:hover {
+            background: linear-gradient(135deg, #fda085 0%, #f6d365 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
     </style>
 </head>
 <body>
@@ -42,10 +54,13 @@
             <i class="fas fa-shield-alt"></i> Administration
         </a>
         <div class="navbar-nav ms-auto">
-                <span class="navbar-text text-white me-3">
-                    <i class="fas fa-user-cog"></i>
-                    <span th:text="${userNom}">Admin</span>
-                </span>
+            <a class="nav-link text-white me-3" th:href="@{/admin/quartiers}">
+                <i class="fas fa-map-marker-alt"></i> Quartiers
+            </a>
+            <span class="navbar-text text-white me-3">
+                <i class="fas fa-user-cog"></i>
+                <span th:text="${userNom}">Admin</span>
+            </span>
             <a class="nav-link text-white" th:href="@{/admin/profile}">
                 <i class="fas fa-user"></i> Profil
             </a>
@@ -79,6 +94,7 @@
                         Bienvenue, <strong th:text="${userNom}">Administrateur</strong>.
                         Gérez votre plateforme de signalement municipal.
                     </p>
+
                 </div>
             </div>
         </div>
@@ -112,6 +128,33 @@
                 <i class="fas fa-user-shield fa-2x mb-3"></i>
                 <div class="stat-number" th:text="${agentsActifs}">0</div>
                 <div>Agents actifs</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section Quartiers -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-warning text-dark">
+                    <i class="fas fa-map-marked-alt"></i> Gestion des Quartiers
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <h5>Gérez les quartiers de votre municipalité</h5>
+                            <p class="text-muted">
+                                Organisez votre ville en quartiers pour une meilleure gestion des signalements.
+                                Assignez des agents à chaque quartier et suivez les incidents par zone.
+                            </p>
+                        </div>
+                        <div class="col-md-4 d-flex align-items-center justify-content-end">
+                            <a th:href="@{/admin/quartiers}" class="btn btn-lg btn-warning">
+                                <i class="fas fa-cog"></i> Accéder à la Gestion
+                            </a>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -183,7 +226,7 @@
 <footer class="bg-dark text-white mt-5 py-3">
     <div class="container text-center">
         <p class="mb-0">
-            <i class="fas fa-copyright"></i> 2024 Plateforme Signalement Municipal |
+            <i class="fas fa-copyright"></i> 2025 Plateforme Signalement Municipal |
             <i class="fas fa-user-shield"></i> Mode Administrateur
         </p>
     </div>

@@ -2,6 +2,9 @@ package com.example.demo.models;
 
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "service")
 public class Service {
@@ -14,5 +17,8 @@ public class Service {
 
     private String zoneGeographique;
 
-    // -------- GETTERS & SETTERS --------
+
+    @OneToMany(mappedBy = "service")
+    private List<Utilisateur> agents = new ArrayList<>();
+
 }

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${pageTitle}">Liste des Quartiers</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container mt-5">
+    <h2 th:text="${pageTitle}">Liste des Quartiers</h2>
+
+    <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+    <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+
+    <a th:href="@{/admin/quartiers/create}" class="btn btn-success mb-3">Ajouter un Quartier</a>
+
+    <table class="table table-bordered">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Nom</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="q : ${quartiers}">
+            <td th:text="${q.id}"></td>
+            <td th:text="${q.nom}"></td>
+            <td>
+
+                <a th:href="@{'/admin/quartiers/' + ${q.id} + '/delete'}" class="btn btn-danger btn-sm"
+                   onclick="return confirm('Supprimer ce quartier ?');">Supprimer</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>

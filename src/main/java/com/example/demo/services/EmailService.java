@@ -27,7 +27,7 @@ public class EmailService {
      */
     public void envoyerIdentifiantsAgent(Utilisateur agent, String motDePasseTemporaire) {
         try {
-            String sujet = "🚨 Vos identifiants Agent Municipal - Plateforme Signalement";
+            String sujet = " Vos identifiants Agent Municipal - Plateforme Signalement";
             String contenu = String.format("""
                     Bonjour %s,
 
