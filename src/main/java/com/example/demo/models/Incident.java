@@ -2,6 +2,7 @@ package com.example.demo.models;
 
 import com.example.demo.models.enums.StatutIncidentEnum;
 import jakarta.persistence.*;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -15,20 +16,17 @@ public class Incident {
     private Long id;
 
     private String titre;
+    private String localisation;
 
     @Enumerated(EnumType.STRING)
     private StatutIncidentEnum statut;
 
     private LocalDateTime dateSignalement;
 
-    private LocalDateTime dateCloture;
+    // ================= RELATIONS =================
 
-    private String localisation;
-
-    // -------- RELATIONS --------
-
-    // Citoyen qui signale l'incident
-    @ManyToOne
+    // Citoyen qui signale
+    @ManyToOne(optional = false)
     @JoinColumn(name = "citoyen_id")
     private Utilisateur citoyen;
 
@@ -37,22 +35,30 @@ public class Incident {
     @JoinColumn(name = "agent_id")
     private Utilisateur agent;
 
-    // Catégorie d’incident
-    @ManyToOne
+    // Catégorie
+    @ManyToOne(optional = false)
     @JoinColumn(name = "categorie_id")
     private CategorieIncident categorie;
 
     // Quartier
-    @ManyToOne
+    @ManyToOne(optional = false)
     @JoinColumn(name = "quartier_id")
     private Quartier quartier;
 
-    // Photos associées
+    // Photos
     @OneToMany(mappedBy = "incident", cascade = CascadeType.ALL)
     private List<Photo> photos = new ArrayList<>();
 
-    // -------- GETTERS & SETTERS --------
-    // (générer automatiquement)
+    // ================= CHAMPS TRANSIENT =================
+
+    @Transient
+    private Long categorieId;
+
+    @Transient
+    private Long quartierId;
+
+    // ================= GETTERS & SETTERS =================
+
     public Long getId() {
         return id;
     }
@@ -69,6 +75,14 @@ public class Incident {
         this.titre = titre;
     }
 
+    public String getLocalisation() {
+        return localisation;
+    }
+
+    public void setLocalisation(String localisation) {
+        this.localisation = localisation;
+    }
+
     public StatutIncidentEnum getStatut() {
         return statut;
     }
@@ -83,22 +97,6 @@ public class Incident {
 
     public void setDateSignalement(LocalDateTime dateSignalement) {
         this.dateSignalement = dateSignalement;
-    }
-
-    public LocalDateTime getDateCloture() {
-        return dateCloture;
-    }
-
-    public void setDateCloture(LocalDateTime dateCloture) {
-        this.dateCloture = dateCloture;
-    }
-
-    public String getLocalisation() {
-        return localisation;
-    }
-
-    public void setLocalisation(String localisation) {
-        this.localisation = localisation;
     }
 
     public Utilisateur getCitoyen() {
@@ -140,15 +138,20 @@ public class Incident {
     public void setPhotos(List<Photo> photos) {
         this.photos = photos;
     }
-    @Transient
-    private Long categorieId;
 
-    @Transient
-    private Long quartierId;
+    public Long getCategorieId() {
+        return categorieId;
+    }
 
-    public Long getCategorieId() { return categorieId; }
-    public void setCategorieId(Long categorieId) { this.categorieId = categorieId; }
+    public void setCategorieId(Long categorieId) {
+        this.categorieId = categorieId;
+    }
 
-    public Long getQuartierId() { return quartierId; }
-    public void setQuartierId(Long quartierId) { this.quartierId = quartierId; }
+    public Long getQuartierId() {
+        return quartierId;
+    }
+
+    public void setQuartierId(Long quartierId) {
+        this.quartierId = quartierId;
+    }
 }

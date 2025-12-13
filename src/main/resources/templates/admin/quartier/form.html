@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Créer un Quartier</title>
+</head>
+<body>
+<h2>Créer un Quartier</h2>
+
+<form th:action="@{/admin/quartiers}" th:object="${quartier}" method="post">
+    <label>Nom :</label>
+    <input type="text" th:field="*{nom}" required />
+    <button type="submit">Créer</button>
+</form>
+
+<a th:href="@{/admin/quartiers}">Retour à la liste</a>
+</body>
+</html>

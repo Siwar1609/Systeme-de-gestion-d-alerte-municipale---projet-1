@@ -4,7 +4,7 @@ import com.example.demo.models.Incident;
 import com.example.demo.models.Utilisateur;
 import com.example.demo.services.Citoyen.CategorieIncidentService;
 import com.example.demo.services.Citoyen.IncidentService;
-import com.example.demo.services.Citoyen.QuartierService;
+import com.example.demo.services.quartier.QuartierService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +41,7 @@ public class CitoyenController {
 
         model.addAttribute("incident", incident);
         model.addAttribute("categories", categorieService.findAll());
-        model.addAttribute("quartiers", quartierService.findAll());
+        model.addAttribute("quartiers", quartierService.getAllQuartiers());
         model.addAttribute("userNom", session.getAttribute("userNom"));
 
         return "citoyens/incident-form";
@@ -57,7 +57,7 @@ public class CitoyenController {
 
         if (result.hasErrors()) {
             model.addAttribute("categories", categorieService.findAll());
-            model.addAttribute("quartiers", quartierService.findAll());
+            model.addAttribute("quartiers", quartierService.getAllQuartiers());
             return "citoyens/incident-form";
         }
 
