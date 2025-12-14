@@ -2,55 +2,68 @@ package com.example.demo.models;
 
 import com.example.demo.models.enums.StatutIncidentEnum;
 import jakarta.persistence.*;
+import lombok.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Table(name = "incident")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class Incident {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
     private String titre;
 
-    @Enumerated(EnumType.STRING)
-    private StatutIncidentEnum statut;
-
-    private LocalDateTime dateSignalement;
-
-    private LocalDateTime dateCloture;
+    @Column(length = 2000)
+    private String description;
 
     private String localisation;
 
-    // -------- RELATIONS --------
+    private LocalDateTime dateSignalement;
 
-    // Citoyen qui signale l'incident
-    @ManyToOne
+    @Enumerated(EnumType.STRING)
+    private StatutIncidentEnum statut;
+    private Double latitude;
+    private Double longitude;
+
+    @Transient
+    private Long categorieId;
+
+    @Transient
+    private Long quartierId;
+
+    public Long getCategorieId() { return categorieId; }
+    public void setCategorieId(Long categorieId) { this.categorieId = categorieId; }
+
+    public Long getQuartierId() { return quartierId; }
+    public void setQuartierId(Long quartierId) { this.quartierId = quartierId; }
+
+    // RELATIONS
+    @ManyToOne(optional = false)
     @JoinColumn(name = "citoyen_id")
     private Utilisateur citoyen;
 
-    // Agent municipal assigné
     @ManyToOne
     @JoinColumn(name = "agent_id")
     private Utilisateur agent;
 
-    // Catégorie d’incident
-    @ManyToOne
+    @ManyToOne(optional = false)
     @JoinColumn(name = "categorie_id")
     private CategorieIncident categorie;
 
-    // Quartier
-    @ManyToOne
+    @ManyToOne(optional = false)
     @JoinColumn(name = "quartier_id")
     private Quartier quartier;
 
-    // Photos associées
-    @OneToMany(mappedBy = "incident", cascade = CascadeType.ALL)
-    private List<Photo> photos = new ArrayList<>();
+    private String nomsPhotos;
 
-    // -------- GETTERS & SETTERS --------
-    // (générer automatiquement)
+
 }
