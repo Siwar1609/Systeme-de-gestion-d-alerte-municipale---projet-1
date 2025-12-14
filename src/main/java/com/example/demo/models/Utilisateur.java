@@ -44,7 +44,7 @@ public class Utilisateur {
 
     @ManyToOne
     @JoinColumn(name = "service_id")
-    private Service service;  // Si role = AGENT
+    private MunicipalService service;  // Si role = AGENT
 
     // RELATIONS JPA
     @OneToMany(mappedBy = "citoyen", cascade = CascadeType.ALL)
