@@ -56,27 +56,33 @@ public class CitoyenController {
             HttpSession session,
             RedirectAttributes redirectAttributes,
             Model model) {
-
+        System.out.println("Errors ? " + result.hasErrors());
+        result.getAllErrors().forEach(e -> System.out.println(e));
         if (result.hasErrors()) {
             model.addAttribute("categories", categorieService.findAll());
             model.addAttribute("quartiers", quartierService.getAllQuartiers());
             return "citoyens/incident-form";
         }
+        System.out.println("creerIncident appelé");
 
         // Récupérer le citoyen depuis la session
         Utilisateur citoyen = (Utilisateur) session.getAttribute("utilisateur");
         incident.setCitoyen(citoyen);
 
-        // Récupérer les entités Categorie et Quartier
-        CategorieIncident categorie = categorieIncidentRepository
-                .findById(incident.getCategorie().getId())
-                .orElseThrow(() -> new RuntimeException("Catégorie introuvable"));
-        incident.setCategorie(categorie);
+        // 2) Récupérer la catégorie et le quartier à partir des IDs bindés
+        if (incident.getCategorieId() != null) {
+            CategorieIncident categorie = categorieIncidentRepository
+                    .findById(incident.getCategorieId())
+                    .orElseThrow(() -> new RuntimeException("Catégorie introuvable"));
+            incident.setCategorie(categorie);
+        }
 
-        Quartier quartier = quartierRepository
-                .findById(incident.getQuartier().getId())
-                .orElseThrow(() -> new RuntimeException("Quartier introuvable"));
-        incident.setQuartier(quartier);
+        if (incident.getQuartierId() != null) {
+            Quartier quartier = quartierRepository
+                    .findById(incident.getQuartierId())
+                    .orElseThrow(() -> new RuntimeException("Quartier introuvable"));
+            incident.setQuartier(quartier);
+        }
 
         // Sauvegarde via le service
         incidentService.creerIncident(incident, photos);

@@ -18,51 +18,52 @@ public class Incident {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @Column(nullable = false)
     private String titre;
 
-    @Enumerated(EnumType.STRING)
-    private StatutIncidentEnum statut;
-    private LocalDateTime dateSignalement;
-
-    private LocalDateTime dateCloture;
+    @Column(length = 2000)
+    private String description;
 
     private String localisation;
 
+    private LocalDateTime dateSignalement;
+
+    @Enumerated(EnumType.STRING)
+    private StatutIncidentEnum statut;
     private Double latitude;
     private Double longitude;
 
+    @Transient
+    private Long categorieId;
 
-    // -------- RELATIONS --------
+    @Transient
+    private Long quartierId;
 
-    // Citoyen qui signale l'incident
+    public Long getCategorieId() { return categorieId; }
+    public void setCategorieId(Long categorieId) { this.categorieId = categorieId; }
+
+    public Long getQuartierId() { return quartierId; }
+    public void setQuartierId(Long quartierId) { this.quartierId = quartierId; }
+
+    // RELATIONS
     @ManyToOne(optional = false)
     @JoinColumn(name = "citoyen_id")
     private Utilisateur citoyen;
 
-    // Agent municipal assigné
     @ManyToOne
     @JoinColumn(name = "agent_id")
     private Utilisateur agent;
 
-    // Catégorie d’incident
     @ManyToOne(optional = false)
     @JoinColumn(name = "categorie_id")
     private CategorieIncident categorie;
 
-    // Quartier
     @ManyToOne(optional = false)
     @JoinColumn(name = "quartier_id")
     private Quartier quartier;
 
-    // Photos
-    @ElementCollection
-    @CollectionTable(name = "incident_photos", joinColumns = @JoinColumn(name = "incident_id"))
-    @Column(name = "photo_path")
-    private List<String> photos = new ArrayList<>();
+    private String nomsPhotos;
 
-    public void addPhoto(String photoPath) {
-        this.photos.add(photoPath);
-    }
 
 }
