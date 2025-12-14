@@ -25,6 +25,9 @@ public class Incident {
 
     private String localisation;
 
+    private Double latitude;
+    private Double longitude;
+
     // -------- RELATIONS --------
 
     // Citoyen qui signale l'incident
@@ -151,4 +154,10 @@ public class Incident {
 
     public Long getQuartierId() { return quartierId; }
     public void setQuartierId(Long quartierId) { this.quartierId = quartierId; }
+
+    public Double getLatitude() { return latitude; }
+    public void setLatitude(Double latitude) { this.latitude = latitude; }
+
+    public Double getLongitude() { return longitude; }
+    public void setLongitude(Double longitude) { this.longitude = longitude; }
 }
