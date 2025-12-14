@@ -14,6 +14,8 @@
 
     <form th:action="@{/citoyens/incidents/creer}" th:object="${incident}"
           method="post" enctype="multipart/form-data">
+        <input type="hidden" th:field="*{statut}" />
+        <input type="hidden" th:field="*{dateSignalement}" />
 
         <div class="mb-3">
             <label class="form-label">Titre</label>
@@ -21,23 +23,9 @@
         </div>
 
         <div class="mb-3">
-            <label class="form-label">Adresse / localisation</label>
-            <input type="text" class="form-control" th:field="*{localisation}"
-                   placeholder="Ex : 15 avenue des Étudiants, Quartier Nord" required>
+            <label class="form-label">Localisation/ Description</label>
+            <textarea class="form-control" th:field="*{localisation}" rows="4" required></textarea>
         </div>
-
-        <div class="mb-3">
-            <label class="form-label">Localisation sur la carte (optionnel)</label>
-            <div id="map" style="height: 300px; border: 1px solid #ccc;"></div>
-            <small class="text-muted">
-                Cliquez sur la carte pour définir une position approximative.
-            </small>
-
-            <!-- Champs cachés pour stocker les coordonnées -->
-            <input type="hidden" th:field="*{latitude}" id="lat">
-            <input type="hidden" th:field="*{longitude}" id="lng">
-        </div>
-
 
         <div class="row">
             <div class="col-md-6 mb-3">
@@ -71,50 +59,5 @@
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script>
-    // Coordonnées par défaut (ex : ta ville)
-    const defaultLat = 48.8566;
-    const defaultLng = 2.3522;
-
-    const map = L.map('map').setView([defaultLat, defaultLng], 13);
-
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19
-    }).addTo(map);
-
-    let marker = null;
-
-    map.on('click', function (e) {
-        const lat = e.latlng.lat;
-        const lng = e.latlng.lng;
-
-        // Met à jour les champs cachés
-        document.getElementById('lat').value = lat;
-        document.getElementById('lng').value = lng;
-
-        // Place ou déplace le marqueur
-        if (marker) {
-            marker.setLatLng(e.latlng);
-        } else {
-            marker = L.marker(e.latlng).addTo(map);
-        }
-    });
-
-    // Simulation GPS : recentrer sur la position de l'utilisateur si dispo
-    if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(function (pos) {
-            const lat = pos.coords.latitude;
-            const lng = pos.coords.longitude;
-            document.getElementById('lat').value = lat;
-            document.getElementById('lng').value = lng;
-            map.setView([lat, lng], 15);
-            if (marker) {
-                marker.setLatLng([lat, lng]);
-            } else {
-                marker = L.marker([lat, lng]).addTo(map);
-            }
-        });
-    }
-</script>
 </body>
 </html>

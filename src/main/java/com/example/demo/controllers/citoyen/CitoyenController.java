@@ -1,10 +1,9 @@
 package com.example.demo.controllers.citoyen;
 
-import com.example.demo.models.Incident;
-import com.example.demo.models.Utilisateur;
-import com.example.demo.services.Citoyen.CategorieIncidentService;
+import com.example.demo.models.*;
 import com.example.demo.services.Citoyen.IncidentService;
-import com.example.demo.services.Citoyen.QuartierService;
+import com.example.demo.services.Citoyen.CategorieIncidentService;
+import com.example.demo.services.quartier.QuartierService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,13 +22,16 @@ public class CitoyenController {
     @Autowired private CategorieIncidentService categorieService;
     @Autowired private QuartierService quartierService;
 
+    @Autowired
+    private com.example.demo.repositories.CategorieIncidentRepository categorieIncidentRepository;
 
+    @Autowired
+    private com.example.demo.repositories.QuartierRepository quartierRepository;
 
     @GetMapping("/dashboard")
     public String showDashboard(Model model, HttpSession session) {
-        String userNom = (String) session.getAttribute("userNom");
         model.addAttribute("pageTitle", "Tableau de bord Citoyen");
-        model.addAttribute("userNom", userNom);
+        model.addAttribute("userNom", session.getAttribute("userNom"));
         return "citoyens/dashboard";
     }
 
@@ -41,31 +43,42 @@ public class CitoyenController {
 
         model.addAttribute("incident", incident);
         model.addAttribute("categories", categorieService.findAll());
-        model.addAttribute("quartiers", quartierService.findAll());
+        model.addAttribute("quartiers", quartierService.getAllQuartiers());
         model.addAttribute("userNom", session.getAttribute("userNom"));
-
         return "citoyens/incident-form";
     }
 
     @PostMapping("/incidents/creer")
-    public String creerIncident(@Valid @ModelAttribute("incident") Incident incident,
-                                BindingResult result,
-                                @RequestParam("photos") MultipartFile[] photos,
-                                HttpSession session,
-                                RedirectAttributes redirectAttributes,
-                                Model model) {
+    public String creerIncident(
+            @Valid @ModelAttribute("incident") Incident incident,
+            BindingResult result,
+            @RequestParam("photos") MultipartFile[] photos,
+            HttpSession session,
+            RedirectAttributes redirectAttributes,
+            Model model) {
 
         if (result.hasErrors()) {
             model.addAttribute("categories", categorieService.findAll());
-            model.addAttribute("quartiers", quartierService.findAll());
+            model.addAttribute("quartiers", quartierService.getAllQuartiers());
             return "citoyens/incident-form";
         }
 
-
-        // 3 Récupérer le citoyen depuis la session (à adapter selon votre implémentation)
+        // Récupérer le citoyen depuis la session
         Utilisateur citoyen = (Utilisateur) session.getAttribute("utilisateur");
         incident.setCitoyen(citoyen);
 
+        // Récupérer les entités Categorie et Quartier
+        CategorieIncident categorie = categorieIncidentRepository
+                .findById(incident.getCategorie().getId())
+                .orElseThrow(() -> new RuntimeException("Catégorie introuvable"));
+        incident.setCategorie(categorie);
+
+        Quartier quartier = quartierRepository
+                .findById(incident.getQuartier().getId())
+                .orElseThrow(() -> new RuntimeException("Quartier introuvable"));
+        incident.setQuartier(quartier);
+
+        // Sauvegarde via le service
         incidentService.creerIncident(incident, photos);
 
         redirectAttributes.addFlashAttribute("message", "Incident signalé avec succès !");
