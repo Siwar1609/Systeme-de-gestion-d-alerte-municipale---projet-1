@@ -6,6 +6,8 @@ import com.example.demo.models.enums.RoleEnum;
 import com.example.demo.repositories.UtilisateurRepository;
 import com.example.demo.services.EmailService;
 import com.example.demo.services.agent.AgentPasswordService;
+import com.example.demo.services.quartier.QuartierService;
+import com.example.demo.services.service.ServiceService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -20,6 +22,10 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class AdminAgentService {
 
+
+
+    private final QuartierService quartierService;   // Injecté
+    private final ServiceService serviceService;
     private final UtilisateurRepository utilisateurRepository;
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
@@ -39,15 +45,12 @@ public class AdminAgentService {
     @Transactional
     public String handleAgentCreation(AgentCreationRequest request, RedirectAttributes redirectAttributes) {
         try {
-            // Vérification si l'email existe déjà
             if (utilisateurRepository.existsByEmail(request.getEmail())) {
                 throw new IllegalArgumentException("Un utilisateur avec cet email existe déjà : " + request.getEmail());
             }
 
-            // Génération d'un mot de passe temporaire
             String tempPassword = generateTempPassword();
 
-            // Création de l'agent
             Utilisateur agent = new Utilisateur();
             agent.setEmail(request.getEmail());
             agent.setNom(request.getNom());
@@ -56,23 +59,25 @@ public class AdminAgentService {
             agent.setCompteActive(true);
             agent.setTokenVerification(null);
 
-            // Sauvegarde
+            // Associer le quartier et le service
+            if (request.getQuartierId() != null) {
+                agent.setQuartier(quartierService.getQuartierById(request.getQuartierId()));
+            }
+            if (request.getServiceId() != null) {
+                agent.setService(serviceService.findById(request.getServiceId()));
+            }
+
             Utilisateur savedAgent = utilisateurRepository.save(agent);
 
-            // Envoi des identifiants par email
             emailService.envoyerIdentifiantsAgent(savedAgent, tempPassword);
 
-            redirectAttributes.addFlashAttribute("success",
-                    " Agent créé avec succès ! Les identifiants ont été envoyés par email.");
+            redirectAttributes.addFlashAttribute("success", "Agent créé avec succès ! Les identifiants ont été envoyés par email.");
             return "redirect:/admin/agents";
 
         } catch (IllegalArgumentException e) {
-            redirectAttributes.addFlashAttribute("error", "  " + e.getMessage());
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
             redirectAttributes.addFlashAttribute("agentRequest", request);
             return "redirect:/admin/agents/create";
-
-        } catch (RuntimeException e) {
-            return handleAgentCreationException(e, request, redirectAttributes);
         }
     }
 

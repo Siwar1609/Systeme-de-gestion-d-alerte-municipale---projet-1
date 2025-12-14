@@ -1,50 +1,218 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title th:text="${pageTitle}">Agents</title>
+    <title th:text="${pageTitle}">Gestion des agents</title>
+
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
-        th { background-color: #2c3e50; color: white; }
-        tr:nth-child(even) { background-color: #f2f2f2; }
+        :root {
+            --primary: #2c3e50;
+            --success: #27ae60;
+            --danger: #e74c3c;
+            --info: #3498db;
+            --light: #f4f6f8;
+            --gray: #7f8c8d;
+        }
+
+        body {
+            font-family: "Segoe UI", Arial, sans-serif;
+            background: var(--light);
+            margin: 0;
+            padding: 30px;
+        }
+
+        /* NAVBAR */
+        .nav {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 25px;
+        }
+
+        .nav a {
+            background: var(--primary);
+            color: #fff;
+            padding: 10px 16px;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 500;
+            transition: background 0.2s ease;
+        }
+
+        .nav a:hover {
+            background: #1f2d3a;
+        }
+
+        h1 {
+            color: var(--primary);
+            margin-bottom: 15px;
+        }
+
+        /* MESSAGES */
+        .message {
+            padding: 12px 16px;
+            border-radius: 6px;
+            margin: 12px 0;
+            font-weight: 500;
+        }
+
+        .success {
+            background: #eafaf1;
+            color: #1e7e34;
+        }
+
+        .error {
+            background: #fdecea;
+            color: #a71d2a;
+        }
+
+        .info {
+            background: #e8f4fd;
+            color: #0b5ed7;
+        }
+
+        /* TABLE */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #fff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+            margin-top: 20px;
+        }
+
+        thead {
+            background: var(--primary);
+            color: #fff;
+        }
+
+        th, td {
+            padding: 14px 16px;
+            text-align: left;
+        }
+
+        tbody tr {
+            border-bottom: 1px solid #eee;
+            transition: background 0.2s;
+        }
+
+        tbody tr:hover {
+            background: #f8f9fa;
+        }
+
+        /* BADGES */
+        .badge {
+            padding: 6px 10px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .badge-success {
+            background: #eafaf1;
+            color: var(--success);
+        }
+
+        .badge-danger {
+            background: #fdecea;
+            color: var(--danger);
+        }
+
+        /* BUTTONS */
         .btn {
-            padding: 5px 10px;
-            margin: 2px;
+            padding: 6px 12px;
             border: none;
-            border-radius: 3px;
+            border-radius: 5px;
             cursor: pointer;
             color: white;
+            font-size: 13px;
+            font-weight: 500;
+            transition: opacity 0.2s;
         }
-        .btn-activate { background: #27ae60; }
-        .btn-deactivate { background: #e74c3c; }
-        .btn-reset { background: #3498db; }
-        .nav { margin-bottom: 20px; }
-        .nav a {
-            background: #2c3e50;
-            color: white;
-            padding: 10px 15px;
-            text-decoration: none;
-            border-radius: 5px;
-            margin-right: 10px;
+
+        .btn:hover {
+            opacity: 0.9;
+        }
+
+        .btn-activate {
+            background: var(--success);
+        }
+
+        .btn-deactivate {
+            background: var(--danger);
+        }
+
+        .btn-reset {
+            background: var(--info);
+        }
+
+        .actions form {
+            display: inline-block;
+        }
+
+        .empty {
+            text-align: center;
+            color: var(--gray);
+            margin-top: 40px;
+            font-size: 16px;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            body {
+                padding: 15px;
+            }
+
+            table, thead, tbody, th, td, tr {
+                display: block;
+            }
+
+            thead {
+                display: none;
+            }
+
+            tr {
+                margin-bottom: 15px;
+                background: #fff;
+                border-radius: 6px;
+                padding: 10px;
+            }
+
+            td {
+                padding: 8px 10px;
+            }
+
+            td::before {
+                font-weight: bold;
+                display: block;
+                color: var(--gray);
+                margin-bottom: 4px;
+            }
+
+            td:nth-child(1)::before { content: "ID"; }
+            td:nth-child(2)::before { content: "Nom"; }
+            td:nth-child(3)::before { content: "Email"; }
+            td:nth-child(4)::before { content: "Quartier"; }
+            td:nth-child(5)::before { content: "Service"; }
+            td:nth-child(6)::before { content: "Statut"; }
+            td:nth-child(7)::before { content: "Actions"; }
         }
     </style>
 </head>
+
 <body>
+
 <div class="nav">
-    <a th:href="@{/admin/dashboard}">← Retour au dashboard</a>
-    <a th:href="@{/admin/agents/create}">➕ Créer un nouvel agent</a>
+    <a th:href="@{/admin/dashboard}">← Dashboard</a>
+    <a th:href="@{/admin/agents/create}">➕ Nouvel agent</a>
 </div>
 
-<h1 th:text="${pageTitle}">Gestion des Agents</h1>
+<h1 th:text="${pageTitle}">Gestion des agents</h1>
 
-<div th:if="${success}" style="background: #d4edda; color: #155724; padding: 10px; border-radius: 5px; margin: 10px 0;"
-     th:text="${success}"></div>
-<div th:if="${error}" style="background: #f8d7da; color: #721c24; padding: 10px; border-radius: 5px; margin: 10px 0;"
-     th:text="${error}"></div>
-<div th:if="${info}" style="background: #d1ecf1; color: #0c5460; padding: 10px; border-radius: 5px; margin: 10px 0;"
-     th:text="${info}"></div>
+<div th:if="${success}" class="message success" th:text="${success}"></div>
+<div th:if="${error}" class="message error" th:text="${error}"></div>
+<div th:if="${info}" class="message info" th:text="${info}"></div>
 
 <table>
     <thead>
@@ -52,36 +220,43 @@
         <th>ID</th>
         <th>Nom</th>
         <th>Email</th>
+        <th>Quartier</th>
+        <th>Service</th>
         <th>Statut</th>
         <th>Actions</th>
     </tr>
     </thead>
+
     <tbody>
     <tr th:each="agent : ${agents}">
         <td th:text="${agent.id}"></td>
         <td th:text="${agent.nom}"></td>
         <td th:text="${agent.email}"></td>
+        <td th:text="${agent.quartier != null ? agent.quartier.nom : '-'}"></td>
+        <td th:text="${agent.service != null ? agent.service.nom : '-'}"></td>
         <td>
-            <span th:if="${agent.compteActive}" style="color: green;">✓ Actif</span>
-            <span th:unless="${agent.compteActive}" style="color: red;">✗ Inactif</span>
+            <span th:if="${agent.compteActive}" class="badge badge-success">Actif</span>
+            <span th:unless="${agent.compteActive}" class="badge badge-danger">Inactif</span>
         </td>
-        <td>
-            <form th:action="@{/admin/agents/{id}/toggle-status(id=${agent.id})}" method="post" style="display: inline;">
+        <td class="actions">
+            <form th:action="@{/admin/agents/{id}/toggle-status(id=${agent.id})}" method="post">
                 <button type="submit"
                         th:class="${agent.compteActive} ? 'btn btn-deactivate' : 'btn btn-activate'"
                         th:text="${agent.compteActive} ? 'Désactiver' : 'Activer'">
                 </button>
             </form>
-            <form th:action="@{/admin/agents/{id}/reset-password(id=${agent.id})}" method="post" style="display: inline;">
-                <button type="submit" class="btn btn-reset">Réinitialiser MDP</button>
+
+            <form th:action="@{/admin/agents/{id}/reset-password(id=${agent.id})}" method="post">
+                <button type="submit" class="btn btn-reset">MDP</button>
             </form>
         </td>
     </tr>
     </tbody>
 </table>
 
-<p th:if="${#lists.isEmpty(agents)}" style="color: #7f8c8d; text-align: center; margin-top: 50px;">
+<p th:if="${#lists.isEmpty(agents)}" class="empty">
     Aucun agent municipal enregistré.
 </p>
+
 </body>
 </html>

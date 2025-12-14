@@ -1,5 +1,6 @@
 package com.example.demo.controllers.admin;
-
+import com.example.demo.services.quartier.QuartierService;
+import com.example.demo.services.service.ServiceService;
 import com.example.demo.dto.admin.AgentCreationRequest;
 import com.example.demo.services.admin.AdminDashboardService;
 import com.example.demo.services.admin.AdminAgentService;
@@ -23,7 +24,8 @@ public class AdminController {
     private final AdminDashboardService adminDashboardService;
     private final AdminAgentService adminAgentService;
     private final AdminCitoyenService adminCitoyenService;
-
+    private final QuartierService quartierService;
+    private final ServiceService serviceService;
     // ==================== MIDDLEWARE ====================
 
     @ModelAttribute
@@ -79,12 +81,16 @@ public class AdminController {
 
     @GetMapping("/agents/create")
     public String showCreateAgentForm(HttpSession session, Model model) {
-        String error = checkAdminAccess(session, model);
-        if (error != null) return error;
+        // Vérifier accès admin ici si nécessaire
 
         if (!model.containsAttribute("agentRequest")) {
             model.addAttribute("agentRequest", new AgentCreationRequest());
         }
+
+        // Ajouter la liste des quartiers et services
+        model.addAttribute("quartiers", quartierService.getAllQuartiers());
+        model.addAttribute("services", serviceService.getAllServices());
+
         model.addAttribute("pageTitle", "Créer un Agent Municipal");
         return "admin/agents/create";
     }

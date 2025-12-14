@@ -22,7 +22,7 @@ public class QuartierController {
         model.addAttribute("pageTitle", "Gestion des Quartiers");
         model.addAttribute("quartiers", quartiers);
         model.addAttribute("totalQuartiers", quartiers.size());
-        return "admin/quartiers/list";
+        return "admin/quartier/list";
     }
 
     // ----------- FORMULAIRE DE CRÉATION -----------
@@ -30,7 +30,7 @@ public class QuartierController {
     public String createQuartierForm(Model model) {
         model.addAttribute("pageTitle", "Créer un Quartier");
         model.addAttribute("quartier", new Quartier());
-        return "admin/quartiers/form";
+        return "admin/quartier/form";
     }
 
     // ----------- CRÉATION D’UN QUARTIER -----------

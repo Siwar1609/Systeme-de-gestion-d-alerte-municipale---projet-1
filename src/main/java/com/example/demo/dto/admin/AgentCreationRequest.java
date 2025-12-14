@@ -15,4 +15,10 @@ public class AgentCreationRequest {
     @NotBlank(message = "Le nom est obligatoire")
     @Size(min = 2, max = 100, message = "Le nom doit contenir entre 2 et 100 caractères")
     private String nom;
+
+    // ID du quartier sélectionné
+    private Long quartierId;
+
+    // ID du service sélectionné
+    private Long serviceId;
 }

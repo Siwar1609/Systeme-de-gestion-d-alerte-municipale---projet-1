@@ -7,45 +7,45 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        body { background: #f4f6f9; }
         .stat-card {
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 20px;
-            color: white;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border-radius: 12px;
+            padding: 25px 20px;
+            color: #fff;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+            text-align: center;
         }
-        .stat-card.citoyens { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
-        .stat-card.agents { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
-        .stat-card.active-citoyens { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
-        .stat-card.active-agents { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
-        .stat-number {
-            font-size: 2.5rem;
-            font-weight: bold;
-            margin-bottom: 5px;
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 20px rgba(0,0,0,0.2);
         }
-        .quick-actions a {
-            text-decoration: none;
-            color: inherit;
-        }
+        .stat-card i { margin-bottom: 10px; }
+        .stat-number { font-size: 2.5rem; font-weight: bold; margin-bottom: 5px; }
+        .quick-actions a { text-decoration: none; color: inherit; }
+        .quick-actions .card { cursor: pointer; transition: transform 0.3s, box-shadow 0.3s; }
         .quick-actions .card:hover {
             transform: translateY(-5px);
-            transition: all 0.3s;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.15);
         }
+        .card-header { font-weight: bold; font-size: 1.1rem; }
+        footer { background: #222; color: #ccc; }
+        footer a { color: #fff; text-decoration: none; }
     </style>
 </head>
 <body>
+
 <!-- Navigation -->
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
     <div class="container">
         <a class="navbar-brand" th:href="@{/admin/dashboard}">
             <i class="fas fa-shield-alt"></i> Administration
         </a>
-        <div class="navbar-nav ms-auto">
-                <span class="navbar-text text-white me-3">
-                    <i class="fas fa-user-cog"></i>
-                    <span th:text="${userNom}">Admin</span>
-                </span>
+        <div class="navbar-nav ms-auto align-items-center">
+            <span class="navbar-text text-white me-3">
+                <i class="fas fa-user-cog"></i>
+                <span th:text="${userNom}">Admin</span>
+            </span>
             <a class="nav-link text-white" th:href="@{/admin/profile}">
                 <i class="fas fa-user"></i> Profil
             </a>
@@ -57,6 +57,7 @@
 </nav>
 
 <div class="container mt-4">
+
     <!-- Messages -->
     <div th:if="${success}" class="alert alert-success alert-dismissible fade show">
         <i class="fas fa-check-circle"></i> <span th:text="${success}"></span>
@@ -68,58 +69,82 @@
     </div>
 
     <!-- Bienvenue -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-body">
-                    <h1 class="card-title">
-                        <i class="fas fa-tachometer-alt"></i> Tableau de Bord
-                    </h1>
-                    <p class="card-text">
-                        Bienvenue, <strong th:text="${userNom}">Administrateur</strong>.
-                        Gérez votre plateforme de signalement municipal.
-                    </p>
-                </div>
-            </div>
+    <div class="card mb-4 shadow-sm">
+        <div class="card-body">
+            <h1 class="card-title">
+                <i class="fas fa-tachometer-alt"></i> Tableau de Bord
+            </h1>
+            <p class="card-text">
+                Bienvenue, <strong th:text="${userNom}">Administrateur</strong>.
+                Gérez votre plateforme de signalement municipal efficacement.
+            </p>
         </div>
     </div>
 
     <!-- Statistiques -->
-    <div class="row mb-4">
-        <div class="col-md-3">
-            <div class="stat-card citoyens">
-                <i class="fas fa-users fa-2x mb-3"></i>
+    <div class="row g-3 mb-4">
+        <div class="col-sm-6 col-md-3">
+            <div class="stat-card citoyens" style="background: linear-gradient(135deg,#667eea,#764ba2)">
+                <i class="fas fa-users fa-2x"></i>
                 <div class="stat-number" th:text="${totalCitoyens}">0</div>
                 <div>Citoyens inscrits</div>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="stat-card agents">
-                <i class="fas fa-user-tie fa-2x mb-3"></i>
+        <div class="col-sm-6 col-md-3">
+            <div class="stat-card agents" style="background: linear-gradient(135deg,#f093fb,#f5576c)">
+                <i class="fas fa-user-tie fa-2x"></i>
                 <div class="stat-number" th:text="${totalAgents}">0</div>
                 <div>Agents municipaux</div>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="stat-card active-citoyens">
-                <i class="fas fa-user-check fa-2x mb-3"></i>
+        <div class="col-sm-6 col-md-3">
+            <div class="stat-card active-citoyens" style="background: linear-gradient(135deg,#4facfe,#00f2fe)">
+                <i class="fas fa-user-check fa-2x"></i>
                 <div class="stat-number" th:text="${citoyensActifs}">0</div>
                 <div>Citoyens actifs</div>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="stat-card active-agents">
-                <i class="fas fa-user-shield fa-2x mb-3"></i>
+        <div class="col-sm-6 col-md-3">
+            <div class="stat-card active-agents" style="background: linear-gradient(135deg,#43e97b,#38f9d7)">
+                <i class="fas fa-user-shield fa-2x"></i>
                 <div class="stat-number" th:text="${agentsActifs}">0</div>
                 <div>Agents actifs</div>
             </div>
         </div>
     </div>
 
-    <!-- Actions Rapides -->
-    <div class="row">
+    <!-- Actions rapides -->
+    <div class="row g-4">
+        <!-- Quartiers -->
         <div class="col-md-6">
-            <div class="card">
+            <div class="card shadow-sm">
+                <div class="card-header bg-warning text-dark">
+                    <i class="fas fa-map-marked-alt"></i> Gestion des Quartiers
+                </div>
+                <div class="card-body quick-actions">
+                    <a th:href="@{/admin/quartiers}">
+                        <div class="card mb-2">
+                            <div class="card-body">
+                                <h5 class="card-title"><i class="fas fa-list"></i> Voir les quartiers</h5>
+                                <p class="card-text">Afficher et gérer les quartiers municipaux</p>
+                            </div>
+                        </div>
+                    </a>
+                    <a th:href="@{/admin/quartiers/create}">
+                        <div class="card mb-2">
+                            <div class="card-body">
+                                <h5 class="card-title"><i class="fas fa-plus-circle"></i> Ajouter un quartier</h5>
+                                <p class="card-text">Créer un nouveau quartier</p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Agents -->
+        <div class="col-md-6">
+            <div class="card shadow-sm">
                 <div class="card-header bg-primary text-white">
                     <i class="fas fa-users-cog"></i> Gestion des Agents
                 </div>
@@ -127,9 +152,7 @@
                     <a th:href="@{/admin/agents}">
                         <div class="card mb-2">
                             <div class="card-body">
-                                <h5 class="card-title">
-                                    <i class="fas fa-list"></i> Liste des agents
-                                </h5>
+                                <h5 class="card-title"><i class="fas fa-list"></i> Liste des agents</h5>
                                 <p class="card-text">Voir et gérer tous les agents municipaux</p>
                             </div>
                         </div>
@@ -137,9 +160,7 @@
                     <a th:href="@{/admin/agents/create}">
                         <div class="card mb-2">
                             <div class="card-body">
-                                <h5 class="card-title">
-                                    <i class="fas fa-user-plus"></i> Créer un agent
-                                </h5>
+                                <h5 class="card-title"><i class="fas fa-user-plus"></i> Créer un agent</h5>
                                 <p class="card-text">Ajouter un nouvel agent municipal</p>
                             </div>
                         </div>
@@ -147,8 +168,10 @@
                 </div>
             </div>
         </div>
+
+        <!-- Citoyens -->
         <div class="col-md-6">
-            <div class="card">
+            <div class="card shadow-sm">
                 <div class="card-header bg-success text-white">
                     <i class="fas fa-users"></i> Gestion des Citoyens
                 </div>
@@ -156,9 +179,7 @@
                     <a th:href="@{/admin/citoyens}">
                         <div class="card mb-2">
                             <div class="card-body">
-                                <h5 class="card-title">
-                                    <i class="fas fa-list"></i> Liste des citoyens
-                                </h5>
+                                <h5 class="card-title"><i class="fas fa-list"></i> Liste des citoyens</h5>
                                 <p class="card-text">Voir et gérer tous les citoyens inscrits</p>
                             </div>
                         </div>
@@ -166,9 +187,7 @@
                     <a th:href="@{/}">
                         <div class="card mb-2">
                             <div class="card-body">
-                                <h5 class="card-title">
-                                    <i class="fas fa-chart-bar"></i> Statistiques
-                                </h5>
+                                <h5 class="card-title"><i class="fas fa-chart-bar"></i> Statistiques</h5>
                                 <p class="card-text">Consulter les statistiques détaillées</p>
                             </div>
                         </div>
@@ -183,7 +202,7 @@
 <footer class="bg-dark text-white mt-5 py-3">
     <div class="container text-center">
         <p class="mb-0">
-            <i class="fas fa-copyright"></i> 2024 Plateforme Signalement Municipal |
+            <i class="fas fa-copyright"></i> 2025 Plateforme Signalement Municipal |
             <i class="fas fa-user-shield"></i> Mode Administrateur
         </p>
     </div>
