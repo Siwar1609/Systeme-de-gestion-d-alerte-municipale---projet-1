@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${pageTitle}">Modifier un incident</title>
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+          rel="stylesheet">
+
+    <style>
+        .form-card {
+            border-radius: 0.75rem;
+            box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.05);
+        }
+    </style>
+</head>
+<body class="bg-light">
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-1">Modifier un incident</h1>
+            <p class="text-muted mb-0">Mettez à jour les informations de votre signalement.</p>
+        </div>
+        <a href="/citoyens/incidents/mes-signalements" class="btn btn-outline-secondary">
+            ← Retour à mes signalements
+        </a>
+    </div>
+
+    <div class="card form-card">
+        <div class="card-body">
+            <form th:action="@{'/citoyens/incidents/' + ${incident.id} + '/modifier'}"
+                  th:object="${incident}"
+                  method="post"
+                  enctype="multipart/form-data">
+
+                <input type="hidden" th:field="*{id}"/>
+
+                <!-- Titre -->
+                <div class="mb-3">
+                    <label for="titre" class="form-label">Titre</label>
+                    <input type="text" id="titre" class="form-control"
+                           th:field="*{titre}" placeholder="Titre de l'incident">
+                    <div class="text-danger small" th:if="${#fields.hasErrors('titre')}"
+                         th:errors="*{titre}"></div>
+                </div>
+
+                <!-- Description -->
+                <div class="mb-3">
+                    <label for="description" class="form-label">Description</label>
+                    <textarea id="description" rows="4" class="form-control"
+                              th:field="*{description}"
+                              placeholder="Décrivez le problème rencontré"></textarea>
+                    <div class="text-danger small" th:if="${#fields.hasErrors('description')}"
+                         th:errors="*{description}"></div>
+                </div>
+
+                <div class="row">
+                    <!-- Catégorie -->
+                    <div class="mb-3 col-md-6">
+                        <label for="categorie" class="form-label">Catégorie</label>
+                        <select id="categorie" class="form-select"
+                                th:field="*{categorieId}">
+                            <option value="" disabled>Choisissez une catégorie</option>
+                            <option th:each="cat : ${categories}"
+                                    th:value="${cat.id}"
+                                    th:text="${cat.nom}"></option>
+                        </select>
+                        <div class="text-danger small" th:if="${#fields.hasErrors('categorieId')}"
+                             th:errors="*{categorieId}"></div>
+                    </div>
+
+                    <!-- Quartier -->
+                    <div class="mb-3 col-md-6">
+                        <label for="quartier" class="form-label">Quartier</label>
+                        <select id="quartier" class="form-select"
+                                th:field="*{quartierId}">
+                            <option value="" disabled>Choisissez un quartier</option>
+                            <option th:each="q : ${quartiers}"
+                                    th:value="${q.id}"
+                                    th:text="${q.nom}"></option>
+                        </select>
+                        <div class="text-danger small" th:if="${#fields.hasErrors('quartierId')}"
+                             th:errors="*{quartierId}"></div>
+                    </div>
+                </div>
+
+                <!-- Localisation -->
+                <div class="mb-3">
+                    <label for="localisation" class="form-label">Localisation</label>
+                    <input type="text" id="localisation" class="form-control"
+                           th:field="*{localisation}" placeholder="Adresse ou point de repère">
+                    <div class="text-danger small" th:if="${#fields.hasErrors('localisation')}"
+                         th:errors="*{localisation}"></div>
+                </div>
+
+                <!-- Statut (optionnel si tu veux le laisser modifiable au citoyen) -->
+                <!--
+                <div class="mb-3">
+                    <label for="statut" class="form-label">Statut</label>
+                    <select id="statut" class="form-select" th:field="*{statut}">
+                        <option th:each="s : ${T(com.example.demo.models.enums.StatutIncidentEnum).values()}"
+                                th:value="${s}" th:text="${s}"></option>
+                    </select>
+                </div>
+                -->
+
+                <!-- Photos actuelles -->
+                <div class="mb-3" th:if="${incident.nomsPhotos != null}">
+                    <label class="form-label">Photos actuelles</label>
+                    <div class="d-flex flex-wrap gap-2">
+                        <div th:each="nom : ${#strings.arraySplit(incident.nomsPhotos, ';')}">
+                            <img th:src="@{'/uploads/incidents/' + ${nom}}"
+                                 alt="Photo incident"
+                                 class="img-thumbnail"
+                                 style="max-height: 120px;">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ajouter de nouvelles photos -->
+                <div class="mb-3">
+                    <label for="photos" class="form-label">Ajouter de nouvelles photos (optionnel)</label>
+                    <input type="file" id="photos" name="photos" class="form-control" multiple>
+                </div>
+
+                <div class="mt-4 d-flex justify-content-between">
+                    <a href="/citoyens/incidents/mes-signalements"
+                       class="btn btn-outline-secondary">
+                        Annuler
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        Mettre à jour
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

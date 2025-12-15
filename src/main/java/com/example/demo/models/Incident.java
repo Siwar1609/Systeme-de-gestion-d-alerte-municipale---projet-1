@@ -47,7 +47,7 @@ public class Incident {
     public void setQuartierId(Long quartierId) { this.quartierId = quartierId; }
 
     // RELATIONS
-    @ManyToOne(optional = false)
+    @ManyToOne
     @JoinColumn(name = "citoyen_id")
     private Utilisateur citoyen;
 
@@ -64,6 +64,8 @@ public class Incident {
     private Quartier quartier;
 
     private String nomsPhotos;
+    public Utilisateur getCitoyen() { return citoyen; }
+    public void setCitoyen(Utilisateur citoyen) { this.citoyen = citoyen; }
 
 
 }
