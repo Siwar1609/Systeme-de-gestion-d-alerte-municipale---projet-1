@@ -24,18 +24,13 @@ public class LoginController {
     private final InscriptionService inscriptionService;
 
     /**
-     * Page de connexion principale (pour tous les utilisateurs)
+     * Page de connexion
+     * ⚠️ Ne force PLUS la redirection vers un dashboard
      */
     @GetMapping("/login")
-    public String showLoginForm(Model model, HttpSession session,
+    public String showLoginForm(Model model,
                                 @RequestParam(value = "error", required = false) String error,
                                 @RequestParam(value = "logout", required = false) String logout) {
-
-        // Si déjà connecté, rediriger vers le dashboard approprié
-        if (session.getAttribute("userRole") != null) {
-            RoleEnum role = (RoleEnum) session.getAttribute("userRole");
-            return redirectBasedOnRole(role);
-        }
 
         model.addAttribute("pageTitle", "Connexion");
 
@@ -50,7 +45,8 @@ public class LoginController {
     }
 
     /**
-     * Traitement de la connexion (pour tous les utilisateurs)
+     * Traitement de la connexion
+     * ✅ Redirection dashboard UNIQUEMENT après login
      */
     @PostMapping("/login")
     public String processLogin(
@@ -60,8 +56,8 @@ public class LoginController {
             RedirectAttributes redirectAttributes) {
 
         try {
-            // 🔍 Authentifier l'utilisateur
-            Optional<Utilisateur> userOpt = inscriptionService.authentifierUtilisateur(email, password);
+            Optional<Utilisateur> userOpt =
+                    inscriptionService.authentifierUtilisateur(email, password);
 
             if (userOpt.isEmpty()) {
                 redirectAttributes.addFlashAttribute("error", "Email ou mot de passe incorrect");
@@ -70,30 +66,21 @@ public class LoginController {
 
             Utilisateur user = userOpt.get();
 
-            // ✅ Vérifier si l'utilisateur peut se connecter
             if (!inscriptionService.peutSeConnecter(user)) {
-                if (user.getRole() == RoleEnum.CITOYEN) {
-                    redirectAttributes.addFlashAttribute("error",
-                            "Veuillez vérifier votre email avant de vous connecter");
-                } else {
-                    redirectAttributes.addFlashAttribute("error",
-                            "Compte désactivé ou non autorisé");
-                }
+                redirectAttributes.addFlashAttribute("error", "Compte non autorisé");
                 return "redirect:/login";
             }
 
-            //  Stocker les informations de session
-            session.setAttribute("utilisateur", user); // objet complet
+            // Stocker la session
+            session.setAttribute("utilisateur", user);
             session.setAttribute("userId", user.getId());
             session.setAttribute("userEmail", user.getEmail());
             session.setAttribute("userNom", user.getNom());
             session.setAttribute("userRole", user.getRole());
 
-
-            // Définir le timeout de session (8 heures)
             session.setMaxInactiveInterval(8 * 60 * 60);
 
-            //  Rediriger vers le dashboard approprié
+            // ✅ Redirection seulement APRÈS login
             return redirectBasedOnRole(user.getRole());
 
         } catch (Exception e) {
@@ -104,7 +91,7 @@ public class LoginController {
     }
 
     /**
-     * Middleware de redirection basé sur le rôle
+     * Redirection basée sur le rôle (APRÈS LOGIN UNIQUEMENT)
      */
     private String redirectBasedOnRole(RoleEnum role) {
         switch (role) {
@@ -115,12 +102,12 @@ public class LoginController {
             case ADMINISTRATEUR:
                 return "redirect:/admin/dashboard";
             default:
-                return "redirect:/login?error=Role non reconnu";
+                return "redirect:/login?error=role";
         }
     }
 
     /**
-     * Déconnexion (pour tous les utilisateurs)
+     * Déconnexion
      */
     @GetMapping("/logout")
     public String logout(HttpSession session) {

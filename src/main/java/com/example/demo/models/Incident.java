@@ -1,6 +1,7 @@
 package com.example.demo.models;
 
 import com.example.demo.models.enums.StatutIncidentEnum;
+import com.example.demo.models.enums.PrioriteIncidentEnum; // <-- nouvel import
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
@@ -31,6 +32,11 @@ public class Incident {
 
     @Enumerated(EnumType.STRING)
     private StatutIncidentEnum statut;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = true)
+    private PrioriteIncidentEnum priorite;
+
     private Double latitude;
     private Double longitude;
 
@@ -64,8 +70,11 @@ public class Incident {
     private Quartier quartier;
 
     private String nomsPhotos;
+
     public Utilisateur getCitoyen() { return citoyen; }
     public void setCitoyen(Utilisateur citoyen) { this.citoyen = citoyen; }
 
 
+    public PrioriteIncidentEnum getPriorite() { return priorite; }
+    public void setPriorite(PrioriteIncidentEnum priorite) { this.priorite = priorite; }
 }
