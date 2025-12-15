@@ -2,9 +2,15 @@ package com.example.demo.models;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "notification")
+@Getter
+@Setter
+@NoArgsConstructor
 public class Notification {
 
     @Id
@@ -15,13 +21,11 @@ public class Notification {
 
     private LocalDateTime date;
 
-    // type: Email, Push, SMS...
     private String type;
 
-    // utilisateur ciblé
+    // Utilisateur ciblé
     @ManyToOne
     @JoinColumn(name = "utilisateur_id")
     private Utilisateur utilisateur;
 
-    // -------- GETTERS & SETTERS --------
 }
