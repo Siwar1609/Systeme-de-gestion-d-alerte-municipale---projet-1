@@ -16,6 +16,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -81,5 +82,88 @@ public class IncidentServiceImpl implements IncidentService {
             e.printStackTrace();
         }
     }
+    @Override
+    public List<Incident> findByCitoyenId(Long citoyenId) {
+        return incidentRepository.findByCitoyenIdOrderByDateSignalementDesc(citoyenId);
+    }
+    @Override
+    public Incident findByIdAndCitoyen(Long incidentId, Long citoyenId) {
+        return incidentRepository
+                .findByIdAndCitoyenId(incidentId, citoyenId)
+                .orElseThrow(() -> new RuntimeException("Incident introuvable ou non autorisé"));
+    }
+
+    @Override
+    public Incident mettreAJourIncident(Incident incidentModifie, MultipartFile[] photos) {
+        Incident existant = incidentRepository.findById(incidentModifie.getId())
+                .orElseThrow(() -> new RuntimeException("Incident introuvable"));
+
+        // mettre à jour uniquement certains champs
+        existant.setTitre(incidentModifie.getTitre());
+        existant.setDescription(incidentModifie.getDescription());
+        existant.setLocalisation(incidentModifie.getLocalisation());
+        existant.setCategorie(incidentModifie.getCategorie());
+        existant.setQuartier(incidentModifie.getQuartier());
+        // éventuellement statut si tu l'autorises
+
+        // gérer éventuellement de nouvelles photos (optionnel)
+        // (reprendre ta logique de sauvegarde de fichiers)
+        Path uploadRoot = Paths.get("uploads/incidents");
+        try {
+            if (!Files.exists(uploadRoot)) {
+                Files.createDirectories(uploadRoot);
+            }
+
+            // Liste des noms déjà enregistrés
+            List<String> noms = new ArrayList<>();
+            if (existant.getNomsPhotos() != null && !existant.getNomsPhotos().isEmpty()) {
+                noms.addAll(Arrays.asList(existant.getNomsPhotos().split(";")));
+            }
+
+            // Ajouter les nouvelles photos
+            if (photos != null) {
+                for (MultipartFile file : photos) {
+                    if (file.isEmpty()) {
+                        continue;
+                    }
+
+                    String originalName = Paths.get(file.getOriginalFilename())
+                            .getFileName()
+                            .toString();
+
+                    String fileName = "incident_" + existant.getId() + "_" +
+                            System.currentTimeMillis() + "_" + originalName;
+
+                    Path destination = uploadRoot.resolve(fileName);
+                    Files.copy(file.getInputStream(), destination,
+                            StandardCopyOption.REPLACE_EXISTING);
+
+                    noms.add(fileName);
+                }
+            }
+
+            // Mettre à jour le champ nomsPhotos si on a au moins une photo
+            if (!noms.isEmpty()) {
+                existant.setNomsPhotos(String.join(";", noms));
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            // à toi de voir si tu lances une RuntimeException ici
+        }
+
+        return incidentRepository.save(existant);
+    }
+    @Override
+    public void supprimerIncidentPourCitoyen(Long incidentId, Long citoyenId) {
+        // sécurité : vérifier que l'incident appartient au citoyen
+        boolean existe = incidentRepository.existsByIdAndCitoyenId(incidentId, citoyenId);
+        if (!existe) {
+            throw new RuntimeException("Incident introuvable ou non autorisé");
+        }
+        incidentRepository.deleteByIdAndCitoyenId(incidentId, citoyenId);
+    }
+
+
 
 }

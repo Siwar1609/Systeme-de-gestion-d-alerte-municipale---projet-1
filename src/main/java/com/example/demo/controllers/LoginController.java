@@ -83,10 +83,12 @@ public class LoginController {
             }
 
             //  Stocker les informations de session
+            session.setAttribute("utilisateur", user); // objet complet
             session.setAttribute("userId", user.getId());
             session.setAttribute("userEmail", user.getEmail());
             session.setAttribute("userNom", user.getNom());
             session.setAttribute("userRole", user.getRole());
+
 
             // Définir le timeout de session (8 heures)
             session.setMaxInactiveInterval(8 * 60 * 60);
