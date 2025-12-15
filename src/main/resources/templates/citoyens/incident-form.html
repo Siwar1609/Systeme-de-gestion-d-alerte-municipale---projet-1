@@ -39,6 +39,12 @@
                    th:field="*{description}"
                    placeholder="Décrivez le problème rencontré" required>
         </div>
+        <div class="mb-3">
+            <label class="form-label"> Localisation</label>
+            <input type="text" class="form-control"
+                   th:field="*{localisation}"
+                   placeholder="Ecrire votre localisation" required>
+        </div>
 
         <div class="mb-3">
             <label class="form-label">Localisation sur la carte (optionnel)</label>
