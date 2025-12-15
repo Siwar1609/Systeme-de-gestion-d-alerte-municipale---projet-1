@@ -147,14 +147,7 @@
             <div class="error" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
         </div>
 
-        <!-- Quartier -->
-        <div class="form-group">
-            <label for="quartier">Quartier</label>
-            <select id="quartier" th:field="*{quartierId}">
-                <option value="">— Sélectionnez un quartier —</option>
-                <option th:each="q : ${quartiers}" th:value="${q.id}" th:text="${q.nom}"></option>
-            </select>
-        </div>
+
 
         <!-- Service -->
         <div class="form-group">

@@ -187,8 +187,35 @@
                     <a th:href="@{/}">
                         <div class="card mb-2">
                             <div class="card-body">
-                                <h5 class="card-title"><i class="fas fa-chart-bar"></i> Statistiques</h5>
-                                <p class="card-text">Consulter les statistiques détaillées</p>
+                                <h5 class="card-title"><i class="fas fa-clipboard-check"></i> État des incidents</h5>
+                                <p class="card-text">Consulter l'état des signalements</p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistiques -->
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-info text-white">
+                    <i class="fas fa-chart-bar"></i> Statistiques
+                </div>
+                <div class="card-body quick-actions">
+                    <a th:href="@{/}">
+                        <div class="card mb-2">
+                            <div class="card-body">
+                                <h5 class="card-title"><i class="fas fa-chart-pie"></i> Tableau de bord statistique</h5>
+                                <p class="card-text">Analyses et rapports détaillés</p>
+                            </div>
+                        </div>
+                    </a>
+                    <a th:href="@{/}">
+                        <div class="card mb-2">
+                            <div class="card-body">
+                                <h5 class="card-title"><i class="fas fa-file-export"></i> Exporter les données</h5>
+                                <p class="card-text">Exporter les statistiques au format PDF/Excel</p>
                             </div>
                         </div>
                     </a>
