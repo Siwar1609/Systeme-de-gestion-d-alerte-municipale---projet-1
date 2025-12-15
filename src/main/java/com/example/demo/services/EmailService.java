@@ -1,7 +1,9 @@
 package com.example.demo.services;
 
+import com.example.demo.models.Incident;
 import com.example.demo.models.Utilisateur;
 import com.example.demo.models.enums.RoleEnum;
+import com.example.demo.models.enums.StatutIncidentEnum;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,22 +24,23 @@ public class EmailService {
     @Value("${app.frontend.url:http://localhost:8080}")
     private String frontendUrl;
 
-    /**
-     * Envoie les identifiants à un nouvel agent municipal
-     */
+    // =========================================================
+    // AGENT MUNICIPAL
+    // =========================================================
+
     public void envoyerIdentifiantsAgent(Utilisateur agent, String motDePasseTemporaire) {
         try {
-            String sujet = "🚨 Vos identifiants Agent Municipal - Plateforme Signalement";
+            String sujet = "Vos identifiants Agent Municipal - Plateforme Signalement";
             String contenu = String.format("""
                     Bonjour %s,
 
                     Votre compte Agent Municipal a été créé avec succès.
 
-                    🔐 Identifiants :
+                    Identifiants :
                     • Email : %s
                     • Mot de passe temporaire : %s
 
-                    🌐 Connexion : %s/login
+                    Connexion : %s/login
 
                     Veuillez changer votre mot de passe dès votre première connexion.
 
@@ -48,27 +51,26 @@ public class EmailService {
             envoyerEmail(agent.getEmail(), sujet, contenu);
 
         } catch (Exception e) {
-            log.error(" ERREUR SMTP pour l'agent {}", agent.getEmail(), e);
-            log.warn(" Email non envoyé mais utilisateur créé. Mot de passe temporaire : {}", motDePasseTemporaire);
-            System.out.println(" Mot de passe temporaire pour test : " + motDePasseTemporaire);
+            log.error("Erreur SMTP pour l'agent {}", agent.getEmail(), e);
         }
     }
 
-    /**
-     * Réinitialisation du mot de passe
-     */
+    // =========================================================
+    // MOT DE PASSE
+    // =========================================================
+
     public void envoyerReinitialisationMotDePasse(Utilisateur utilisateur, String nouveauMotDePasse) {
         try {
-            String sujet = " Réinitialisation Mot de Passe - " + getRoleString(utilisateur.getRole());
+            String sujet = "Réinitialisation Mot de Passe - " + getRoleString(utilisateur.getRole());
             String contenu = String.format("""
                     Bonjour,
 
                     Votre mot de passe a été réinitialisé.
 
-                    🔐 Nouveau mot de passe :
+                    Nouveau mot de passe :
                     %s
 
-                    Veuillez vous connecter et le changer immédiatement.
+                    Veuillez le changer immédiatement après connexion.
 
                     Cordialement.
                     """, nouveauMotDePasse);
@@ -80,65 +82,91 @@ public class EmailService {
         }
     }
 
-    /**
-     * Email de vérification pour l'inscription citoyen
-     */
+    // =========================================================
+    // CITOYEN - INSCRIPTION
+    // =========================================================
+
     public void envoyerEmailVerification(String email, String token) {
-        try {
-            String sujet = " Vérification de votre compte - Plateforme Signalement";
-            String lienVerification = frontendUrl + "/citoyens/verifier-email?token=" + token;
-            String contenu = String.format("""
-                    Bonjour,
+        String lienVerification = frontendUrl + "/citoyens/verifier-email?token=" + token;
 
-                    Merci de vous être inscrit.
+        String sujet = "Vérification de votre compte - Plateforme Signalement";
+        String contenu = String.format("""
+                Bonjour,
 
-                    Veuillez vérifier votre email en cliquant sur le lien suivant :
+                Merci de votre inscription.
 
-                    %s
+                Veuillez vérifier votre email via ce lien :
+                %s
 
-                    Ce lien expire dans 24 heures.
+                Cordialement,
+                Plateforme Signalement Municipal
+                """, lienVerification);
 
-                    Cordialement,
-                    Plateforme Signalement Municipal
-                    """, lienVerification);
-
-            envoyerEmail(email, sujet, contenu);
-
-        } catch (Exception e) {
-            log.error("Impossible d'envoyer l'email de vérification à {}", email, e);
-            throw new RuntimeException(e); // tu peux laisser throw si tu veux catcher côté service
-        }
+        envoyerEmail(email, sujet, contenu);
     }
 
-    /**
-     * Email de bienvenue après validation du compte
-     */
     public void envoyerEmailBienvenue(String email, String nom) {
+        String sujet = "Bienvenue sur la Plateforme Signalement";
+        String contenu = String.format("""
+                Bonjour %s,
+
+                Votre compte est maintenant actif.
+
+                Connexion : %s/login
+
+                Cordialement,
+                Plateforme Signalement Municipal
+                """, nom, frontendUrl);
+
+        envoyerEmail(email, sujet, contenu);
+    }
+
+    // =========================================================
+    //  NOUVEAU : INCIDENT - CHANGEMENT DE STATUT
+    // =========================================================
+
+    public void envoyerEmailChangementStatutIncident(
+            Incident incident,
+            StatutIncidentEnum nouveauStatut
+    ) {
         try {
-            String sujet = " Bienvenue sur la Plateforme Signalement";
+            Utilisateur citoyen = incident.getCitoyen();
+
+            if (citoyen == null || citoyen.getEmail() == null) return;
+
+            String sujet = "Mise à jour de votre signalement #" + incident.getId();
+
             String contenu = String.format("""
                     Bonjour %s,
 
-                    Votre compte a été activé avec succès.
+                    Le statut de votre signalement a changé.
 
-                    Vous pouvez désormais vous connecter et signaler vos incidents.
+                     Incident : %s
+                     Catégorie : %s
+                     Nouveau statut : %s
 
-                    🌐 Connexion : %s/login
+                    Vous pouvez consulter les détails via votre espace citoyen.
 
                     Cordialement,
                     Plateforme Signalement Municipal
-                    """, nom, frontendUrl);
+                    """,
+                    citoyen.getNom(),
+                    incident.getTitre(),
+                    incident.getCategorie().getNom(),
+                    formatStatut(nouveauStatut)
+            );
 
-            envoyerEmail(email, sujet, contenu);
+            envoyerEmail(citoyen.getEmail(), sujet, contenu);
 
         } catch (Exception e) {
-            log.error(" Impossible d'envoyer l'email de bienvenue à {}", email, e);
+            log.error("Erreur lors de l'envoi de l'email incident", e);
         }
     }
 
-    /**
-     * Méthode interne pour envoyer un mail simple
-     */
+    // =========================================================
+    // UTILITAIRE EMAIL
+    // =========================================================
+
     private void envoyerEmail(String destinataire, String sujet, String contenu) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(destinataire);
@@ -146,7 +174,7 @@ public class EmailService {
         message.setText(contenu);
         message.setFrom(emailFrom);
         mailSender.send(message);
-        log.info(" Email envoyé à {}", destinataire);
+        log.info("Email envoyé à {}", destinataire);
     }
 
     private String getRoleString(RoleEnum role) {
@@ -154,6 +182,16 @@ public class EmailService {
             case ADMINISTRATEUR -> "Administrateur";
             case AGENT_MUNICIPAL -> "Agent Municipal";
             case CITOYEN -> "Citoyen";
+        };
+    }
+
+    private String formatStatut(StatutIncidentEnum statut) {
+        return switch (statut) {
+            case EN_COURS_DE_CHARGE -> "Pris en charge";
+            case EN_RESOLUTION -> "En cours de résolution";
+            case RESOLU -> "Résolu";
+            case CLOTURE -> "Clôturé";
+            case SIGNALE -> "Signalé";
         };
     }
 }
