@@ -137,6 +137,19 @@ public class AdminController {
 
         return adminAgentService.handleToggleAgentStatus(id, redirectAttributes);
     }
+    @PostMapping("/agents/{id}/delete")
+    public String deleteAgent(
+            @PathVariable Long id,
+            HttpSession session,
+            RedirectAttributes redirectAttributes) {
+
+        if (!adminService.isAdmin(session)) {
+            redirectAttributes.addFlashAttribute("error", "Accès non autorisé");
+            return "redirect:/login";
+        }
+
+        return adminAgentService.handleDeleteAgent(id, redirectAttributes);
+    }
 
     @PostMapping("/agents/{id}/reset-password")
     public String resetAgentPassword(
@@ -170,19 +183,25 @@ public class AdminController {
         }
     }
 
-    @PostMapping("/citoyens/{id}/toggle-status")
-    public String toggleCitoyenStatus(
-            @PathVariable Long id,
-            HttpSession session,
-            RedirectAttributes redirectAttributes) {
+    @Controller
+    @RequestMapping("/admin")
+    public class AdminCitoyenController {
 
-        if (!adminService.isAdmin(session)) {
-            redirectAttributes.addFlashAttribute("error", "Accès non autorisé");
-            return "redirect:/login";
+        @PostMapping("/citoyens/{id}/toggle-status")
+        public String toggleCitoyenStatus(
+                @PathVariable Long id,
+                HttpSession session,
+                RedirectAttributes redirectAttributes) {
+
+            if (!adminService.isAdmin(session)) {
+                redirectAttributes.addFlashAttribute("error", "Accès non autorisé");
+                return "redirect:/login";
+            }
+
+            return adminCitoyenService.handleToggleCitoyenStatus(id, redirectAttributes);
         }
-
-        return adminCitoyenService.handleToggleCitoyenStatus(id, redirectAttributes);
     }
+
 
     @PostMapping("/citoyens/{id}/delete")
     public String deleteCitoyen(

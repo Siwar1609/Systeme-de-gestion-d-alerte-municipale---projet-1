@@ -21,9 +21,9 @@
             <i class="fas fa-user-tie"></i> Agent Municipal
         </a>
         <div class="navbar-nav ms-auto">
-                <span class="navbar-text text-white me-3">
-                    <i class="fas fa-user"></i> <span th:text="${userNom}">Agent</span>
-                </span>
+            <span class="navbar-text text-white me-3">
+                <i class="fas fa-user"></i> <span th:text="${userNom}">Agent</span>
+            </span>
             <a class="nav-link text-white" th:href="@{/agent/profile}">
                 <i class="fas fa-user-cog"></i> Profil
             </a>
@@ -33,6 +33,7 @@
         </div>
     </div>
 </nav>
+
 
 <!-- Header -->
 <div class="agent-header">
@@ -86,22 +87,17 @@
         </div>
         <div class="card-body">
             <div class="row">
-                <div class="col-md-3">
+                <div class="col-md-6">
                     <a th:href="@{/agent/incidents}" class="btn btn-outline-primary w-100 mb-2">
                         <i class="fas fa-list"></i> Voir les signalements
                     </a>
                 </div>
-                <div class="col-md-3">
-                    <a href="#" class="btn btn-outline-success w-100 mb-2">
-                        <i class="fas fa-plus"></i> Nouveau rapport
-                    </a>
-                </div>
-                <div class="col-md-3">
+                <div class="col-md-6">
                     <a th:href="@{/agent/profile}" class="btn btn-outline-info w-100 mb-2">
                         <i class="fas fa-user-edit"></i> Modifier mon profil
                     </a>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-6">
                     <a th:href="@{/logout}" class="btn btn-outline-danger w-100 mb-2">
                         <i class="fas fa-sign-out-alt"></i> Déconnexion
                     </a>

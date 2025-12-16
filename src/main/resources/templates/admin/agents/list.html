@@ -147,8 +147,13 @@
             background: var(--info);
         }
 
+        .btn-delete {
+            background: #c0392b;
+        }
+
         .actions form {
             display: inline-block;
+            margin-right: 4px;
         }
 
         .empty {
@@ -214,7 +219,7 @@
 <div th:if="${error}" class="message error" th:text="${error}"></div>
 <div th:if="${info}" class="message info" th:text="${info}"></div>
 
-<table>
+<table th:if="${!#lists.isEmpty(agents)}">
     <thead>
     <tr>
         <th>ID</th>
@@ -239,6 +244,8 @@
             <span th:unless="${agent.compteActive}" class="badge badge-danger">Inactif</span>
         </td>
         <td class="actions">
+
+            <!-- ACTIVER / DÉSACTIVER -->
             <form th:action="@{/admin/agents/{id}/toggle-status(id=${agent.id})}" method="post">
                 <button type="submit"
                         th:class="${agent.compteActive} ? 'btn btn-deactivate' : 'btn btn-activate'"
@@ -246,9 +253,17 @@
                 </button>
             </form>
 
+            <!-- RESET PASSWORD -->
             <form th:action="@{/admin/agents/{id}/reset-password(id=${agent.id})}" method="post">
                 <button type="submit" class="btn btn-reset">MDP</button>
             </form>
+
+            <!-- SUPPRIMER -->
+            <form th:action="@{/admin/agents/{id}/delete(id=${agent.id})}" method="post"
+                  onsubmit="return confirm('Voulez-vous vraiment supprimer cet agent ?');">
+                <button type="submit" class="btn btn-delete">Supprimer</button>
+            </form>
+
         </td>
     </tr>
     </tbody>
