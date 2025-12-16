@@ -62,6 +62,7 @@
             <th>Catégorie</th>
             <th>Priorité</th>
             <th>Statut</th>
+            <th>Feedback Citoyen</th>
             <th>Agent</th>
             <th style="width: 30%;">Actions</th>
         </tr>
@@ -102,6 +103,24 @@
 
             <!-- Statut -->
             <td th:text="${incident.statut}"></td>
+            <td>
+                <div th:if="${incident.statut.name() == 'CLOTURE'}">
+                    <div th:if="${incident.noteCitoyen != null}">
+                        <strong th:text="${incident.noteCitoyen} + '/5'"></strong><br/>
+                    </div>
+                    <small class="text-muted"
+                           th:if="${incident.feedbackCitoyen != null and !#strings.isEmpty(incident.feedbackCitoyen)}"
+                           th:text="${incident.feedbackCitoyen}"></small>
+                    <span class="text-muted"
+                          th:if="${incident.noteCitoyen == null and (incident.feedbackCitoyen == null or #strings.isEmpty(incident.feedbackCitoyen))}">
+            Aucun feedback
+        </span>
+                </div>
+                <span class="text-muted"
+                      th:if="${incident.statut.name() != 'CLOTURE'}">
+        En attente du citoyen
+    </span>
+            </td>
 
             <!-- Agent -->
             <td th:text="${incident.agent != null ? incident.agent.nom : 'Non assigné'}"></td>

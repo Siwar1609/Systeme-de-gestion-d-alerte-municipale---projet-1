@@ -8,10 +8,7 @@ import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
@@ -101,4 +98,13 @@ public class AgentIncidentController {
 
         return "redirect:/agent/incidents";
     }
+    @GetMapping("/{id}")
+    public String detailIncidentAgent(@PathVariable Long id, HttpSession session, Model model) {
+        Utilisateur agent = (Utilisateur) session.getAttribute("utilisateur");
+        Incident incident = incidentWorkflowService.getIncidentByAgentId(id, agent.getId());
+        model.addAttribute("incident", incident);
+        model.addAttribute("pageTitle", "Détail incident");
+        return "agent/incident-detail";
+    }
+
 }
