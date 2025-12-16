@@ -10,31 +10,25 @@
         body {
             background: #f4f6f9;
         }
-
         .container {
             background: #fff;
             padding: 30px;
             border-radius: 10px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
-
         h2 {
             margin-bottom: 25px;
         }
-
         table th, table td {
             text-align: center;
             vertical-align: middle;
         }
-
         .btn-sm {
             padding: 0.25rem 0.5rem;
         }
-
         .form-select-sm {
             font-size: 0.875rem;
         }
-
         .badge {
             font-size: 0.75em;
             padding: 0.35em 0.65em;
@@ -64,105 +58,147 @@
             <th>Statut</th>
             <th>Feedback Citoyen</th>
             <th>Agent</th>
-            <th style="width: 30%;">Actions</th>
+            <th style="width:30%">Actions</th>
         </tr>
         </thead>
 
         <tbody>
         <tr th:each="incident : ${incidents}">
-            <td th:text="${incident.id}" class="text-center"></td>
+            <td th:text="${incident.id}"></td>
             <td th:text="${incident.titre}"></td>
             <td th:text="${incident.description}"></td>
+
             <td>
-                <span th:text="${incident.localisation}"></span><br/>
+                <span th:text="${incident.localisation}"></span><br>
                 <small class="text-muted"
-                       th:text="'Lat : ' + ${incident.latitude} + ' / Lng : ' + ${incident.longitude}"></small>
+                       th:text="'Lat : ' + ${incident.latitude} + ' / Lng : ' + ${incident.longitude}">
+                </small>
             </td>
+
             <td>
                 <div class="d-flex flex-wrap gap-1" th:if="${incident.nomsPhotos != null}">
                     <img th:each="nom : ${#strings.arraySplit(incident.nomsPhotos, ';')}"
                          th:src="@{'/uploads/incidents/' + ${nom}}"
-                         alt="Photo incident"
                          class="img-thumbnail"
-                         style="max-height: 60px;">
+                         style="max-height:60px">
                 </div>
-                <span th:if="${incident.nomsPhotos == null}">
-        —
-                           </span>
+                <span th:if="${incident.nomsPhotos == null}">—</span>
             </td>
-            <td th:text="${incident.citoyen != null ? incident.citoyen.nom : '—'}"></td>
 
-            <!-- Catégorie -->
+            <td th:text="${incident.citoyen != null ? incident.citoyen.nom : '—'}"></td>
             <td th:text="${incident.categorie != null ? incident.categorie.nom : '—'}"></td>
 
-            <!-- Priorité -->
             <td>
-                <span th:if="${incident.priorite != null}" class="badge bg-warning text-dark" th:text="${incident.priorite}"></span>
+                <span th:if="${incident.priorite != null}"
+                      class="badge bg-warning text-dark"
+                      th:text="${incident.priorite}">
+                </span>
                 <span th:if="${incident.priorite == null}" class="text-muted">Non définie</span>
             </td>
 
-            <!-- Statut -->
             <td th:text="${incident.statut}"></td>
+
             <td>
                 <div th:if="${incident.statut.name() == 'CLOTURE'}">
-                    <div th:if="${incident.noteCitoyen != null}">
-                        <strong th:text="${incident.noteCitoyen} + '/5'"></strong><br/>
-                    </div>
+                    <strong th:if="${incident.noteCitoyen != null}"
+                            th:text="${incident.noteCitoyen} + '/5'"></strong><br>
+
                     <small class="text-muted"
                            th:if="${incident.feedbackCitoyen != null and !#strings.isEmpty(incident.feedbackCitoyen)}"
-                           th:text="${incident.feedbackCitoyen}"></small>
+                           th:text="${incident.feedbackCitoyen}">
+                    </small>
+
                     <span class="text-muted"
-                          th:if="${incident.noteCitoyen == null and (incident.feedbackCitoyen == null or #strings.isEmpty(incident.feedbackCitoyen))}">
-            Aucun feedback
-        </span>
+                          th:if="${incident.feedbackCitoyen == null or #strings.isEmpty(incident.feedbackCitoyen)}">
+                        Aucun feedback
+                    </span>
                 </div>
-                <span class="text-muted"
-                      th:if="${incident.statut.name() != 'CLOTURE'}">
-        En attente du citoyen
-    </span>
+
+                <span class="text-muted" th:if="${incident.statut.name() != 'CLOTURE'}">
+                    En attente du citoyen
+                </span>
             </td>
 
-            <!-- Agent -->
             <td th:text="${incident.agent != null ? incident.agent.nom : 'Non assigné'}"></td>
 
-            <!-- Actions -->
+            <!-- ACTIONS -->
             <td>
-                <!-- Formulaire assignation agent -->
-                <form th:action="@{/admin/incidents/assigner}" method="post" th:if="${incident.agent == null}" class="mb-2">
+
+                <!-- Assigner agent -->
+                <form th:if="${incident.agent == null}"
+                      th:action="@{/admin/incidents/assigner}"
+                      method="post"
+                      class="mb-2">
+
                     <input type="hidden" name="incidentId" th:value="${incident.id}">
                     <select name="agentId" class="form-select form-select-sm mb-1" required>
                         <option value="" disabled selected>-- Choisir agent --</option>
-                        <option th:each="agent : ${agents}" th:value="${agent.id}" th:text="${agent.nom + ' (' + agent.service.nom + ')'}"></option>
+                        <option th:each="agent : ${agents}"
+                                th:value="${agent.id}"
+                                th:text="${agent.nom + ' (' + agent.service.nom + ')'}">
+                        </option>
                     </select>
 
-                    <button type="submit" class="btn btn-primary btn-sm w-100">Assigner Agent</button>
+                    <button class="btn btn-primary btn-sm w-100">Assigner Agent</button>
                 </form>
 
-                <!-- Formulaire modification priorité -->
+                <!-- Modifier priorité -->
                 <form th:action="@{/admin/incidents/modifierPriorite}" method="post" class="mb-2">
                     <input type="hidden" name="incidentId" th:value="${incident.id}">
                     <select name="priorite" class="form-select form-select-sm mb-1" required>
                         <option value="" disabled selected>-- Choisir priorité --</option>
-                        <option th:each="p : ${T(com.example.demo.models.enums.PrioriteIncidentEnum).values()}" th:value="${p}" th:text="${p}"></option>
+                        <option th:each="p : ${T(com.example.demo.models.enums.PrioriteIncidentEnum).values()}"
+                                th:value="${p}"
+                                th:text="${p}">
+                        </option>
                     </select>
-                    <button type="submit" class="btn btn-warning btn-sm w-100">Modifier Priorité</button>
+                    <button class="btn btn-warning btn-sm w-100">Modifier Priorité</button>
                 </form>
 
-                <div th:if="${incident.agent != null}" class="text-success small text-center">
+                <div th:if="${incident.agent != null}" class="text-success small mb-2">
                     Agent déjà assigné
                 </div>
+
+                <!-- GÉNÉRER RAPPORT -->
+                <div class="mt-2"
+                     th:if="${incident.statut.name() == 'CLOTURE'
+        and incident.feedbackCitoyen != null
+        and !#strings.isEmpty(incident.feedbackCitoyen)}">
+
+                    <form th:action="@{/admin/incidents/genererRapport}" method="post">
+                        <input type="hidden" name="incidentId" th:value="${incident.id}">
+
+                        <select name="typeRapport"
+                                class="form-select form-select-sm mb-1"
+                                required>
+                            <option value="" disabled selected>-- Type de rapport --</option>
+                            <option th:each="t : ${T(com.example.demo.models.enums.TypeRapportEnum).values()}"
+                                    th:value="${t}"
+                                    th:text="${t}">
+                            </option>
+                        </select>
+
+                        <button class="btn btn-success btn-sm w-100">
+                            📄 Générer Rapport
+                        </button>
+                    </form>
+                </div>
+
+
             </td>
         </tr>
 
         <tr th:if="${#lists.isEmpty(incidents)}">
-            <td colspan="9" class="text-center text-muted">
+            <td colspan="12" class="text-center text-muted">
                 Aucun incident enregistré.
             </td>
         </tr>
         </tbody>
     </table>
 
-    <a th:href="@{/admin/dashboard}" class="btn btn-secondary mt-3">← Retour au dashboard</a>
+    <a th:href="@{/admin/dashboard}" class="btn btn-secondary mt-3">
+        ← Retour au dashboard
+    </a>
 
 </div>
 </body>
