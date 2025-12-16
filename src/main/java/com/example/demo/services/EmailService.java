@@ -213,7 +213,7 @@ public class EmailService {
         Merci,
         L'administrateur
         """.formatted(
-                agent.getNom() + " " + agent.getNom(),
+                agent.getNom(),
                 incident.getTitre(),
                 incident.getCategorie().getNom(),
                 incident.getQuartier() != null ? incident.getQuartier().getNom() : "—",
