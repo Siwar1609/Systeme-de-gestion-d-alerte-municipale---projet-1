@@ -40,8 +40,15 @@
                                th:value="${filtre?.localisation}" placeholder="Localisation...">
                     </div>
                     <div class="col-md-2">
-                        <input type="text" name="categorieNom" class="form-control"
-                               th:value="${filtre?.categorieNom}" placeholder="Catégorie...">
+                        <select name="categorieNom" class="form-select">
+                            <option value="">Toutes catégories</option>
+                            <option th:each="cat : ${categories}"
+                                    th:value="${cat.nom}"
+                                    th:text="${cat.nom}"
+                                    th:selected="${filtre?.categorieNom == cat.nom}">
+                                Catégorie
+                            </option>
+                        </select>
                     </div>
                     <div class="col-md-2">
                         <button type="submit" class="btn btn-primary w-100">Filtrer</button>
