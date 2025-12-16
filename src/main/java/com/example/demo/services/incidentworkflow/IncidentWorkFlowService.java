@@ -237,5 +237,13 @@ public class IncidentWorkFlowService {
                 .filter(i -> i.getStatut() == StatutIncidentEnum.RESOLU)
                 .count();
     }
+    public Incident getIncidentById(Long id) {
+        return incidentRepository.findById(id).orElseThrow(() -> new RuntimeException("Incident introuvable"));
+    }
+
+    public Incident getIncidentByAgentId(Long id, Long agentId) {
+        return incidentRepository.findByIdAndAgentId(id, agentId)
+                .orElseThrow(() -> new RuntimeException("Incident introuvable"));
+    }
 
 }

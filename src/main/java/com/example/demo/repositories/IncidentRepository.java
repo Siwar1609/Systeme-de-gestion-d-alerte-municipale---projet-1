@@ -14,5 +14,6 @@ public interface IncidentRepository extends JpaRepository<Incident, Long> {
     Optional<Incident> findByIdAndCitoyenId(Long id, Long citoyenId);
     void deleteByIdAndCitoyenId(Long id, Long citoyenId);
     boolean existsByIdAndCitoyenId(Long id, Long citoyenId);
+    Optional<Incident> findByIdAndAgentId(Long id, Long agentId);
 }
 

@@ -25,6 +25,7 @@
             <th>Catégorie</th>
             <th>Priorité</th>
             <th>Statut</th>
+            <th>Feedback Citoyen</th>
             <th style="width: 180px">Actions</th>
         </tr>
         </thead>
@@ -64,8 +65,32 @@
             <td>
                 <span class="badge bg-info" th:text="${incident.statut}"></span>
             </td>
+            <td>
+                <div th:if="${incident.statut.name() == 'CLOTURE'}">
+                    <div th:if="${incident.noteCitoyen != null}">
+                        <strong th:text="${incident.noteCitoyen} + '/5'"></strong><br/>
+                    </div>
+                    <small class="text-muted"
+                           th:if="${incident.feedbackCitoyen != null and !#strings.isEmpty(incident.feedbackCitoyen)}"
+                           th:text="${incident.feedbackCitoyen}"></small>
+                    <span class="text-muted"
+                          th:if="${incident.noteCitoyen == null and (incident.feedbackCitoyen == null or #strings.isEmpty(incident.feedbackCitoyen))}">
+            Aucun feedback
+        </span>
+                </div>
+                <span class="text-muted"
+                      th:if="${incident.statut.name() != 'CLOTURE'}">
+        En attente du citoyen
+    </span>
+            </td>
+
+
 
             <td>
+                <a th:href="@{/agent/incidents/{id}(id=${incident.id})}"
+                   class="btn btn-outline-info btn-sm w-100 mb-1">
+                    Détail
+                </a>
                 <!-- ▶ Commencer -->
                 <form th:action="@{/agent/incidents/commencer}"
                       method="post"
