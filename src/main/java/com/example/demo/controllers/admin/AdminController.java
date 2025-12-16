@@ -8,6 +8,7 @@ import com.example.demo.services.admin.AdminCitoyenService;
 import com.example.demo.services.admin.AdminService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
+import com.example.demo.services.StatistiquesService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -15,10 +16,13 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.Map;
+
 @Controller
 @RequestMapping("/admin")
 @RequiredArgsConstructor
 public class AdminController {
+
 
     private final AdminService adminService;
     private final AdminDashboardService adminDashboardService;
@@ -26,6 +30,7 @@ public class AdminController {
     private final AdminCitoyenService adminCitoyenService;
     private final QuartierService quartierService;
     private final ServiceService serviceService;
+    private final StatistiquesService statistiquesService;
     // ==================== MIDDLEWARE ====================
 
     @ModelAttribute
@@ -208,8 +213,31 @@ public class AdminController {
         } catch (Exception e) {
             model.addAttribute("error", "Erreur lors du chargement du profil: " + e.getMessage());
             return "error/server-error";
+        }}
+    @GetMapping("/stats")
+    public String showStatistics(HttpSession session, Model model) {
+        String error = checkAdminAccess(session, model);
+        if (error != null) return error;
+
+        try {
+            Map<String, Long> incidentsParCategorie = statistiquesService.incidentsParCategorie();
+            Map<String, Long> incidentsParQuartier = statistiquesService.incidentsParQuartier();
+
+            // Convertir en JSON pour Thymeleaf/JS
+            model.addAttribute("incidentsParCategorieJson", incidentsParCategorie);
+            model.addAttribute("incidentsParQuartierJson", incidentsParQuartier);
+
+            model.addAttribute("pageTitle", "Statistiques des Incidents");
+            return "admin/statistiques";
+
+        } catch (Exception e) {
+            model.addAttribute("error", "Erreur lors du chargement des statistiques : " + e.getMessage());
+            return "error/server-error";
         }
     }
+
+
+
 
     // ==================== LOGOUT ADMIN ====================
 

@@ -89,6 +89,7 @@
                 <div class="stat-number" th:text="${totalCitoyens}">0</div>
                 <div>Citoyens inscrits</div>
             </div>
+
         </div>
         <div class="col-sm-6 col-md-3">
             <div class="stat-card agents" style="background: linear-gradient(135deg,#f093fb,#f5576c)">
@@ -203,7 +204,7 @@
                     <i class="fas fa-chart-bar"></i> Statistiques
                 </div>
                 <div class="card-body quick-actions">
-                    <a th:href="@{/}">
+                    <a th:href="@{/admin/stats}">
                         <div class="card mb-2">
                             <div class="card-body">
                                 <h5 class="card-title"><i class="fas fa-chart-pie"></i> Tableau de bord statistique</h5>
@@ -211,7 +212,7 @@
                             </div>
                         </div>
                     </a>
-                    <a th:href="@{/}">
+                    <a th:href="@{/admin/stats}">
                         <div class="card mb-2">
                             <div class="card-body">
                                 <h5 class="card-title"><i class="fas fa-file-export"></i> Exporter les données</h5>
