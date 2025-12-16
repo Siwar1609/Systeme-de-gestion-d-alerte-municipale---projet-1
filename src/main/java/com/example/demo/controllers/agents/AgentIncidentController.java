@@ -10,6 +10,11 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import com.example.demo.models.FiltreIncident;
 
 import java.util.List;
 
@@ -22,18 +27,48 @@ public class AgentIncidentController {
 
     // ========================= Liste des incidents assignés =========================
     @GetMapping
-    public String mesIncidents(Model model, HttpSession session) {
+    public String mesIncidents(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "dateSignalement") String sortField,
+            @RequestParam(defaultValue = "desc") String sortDir,
+            @RequestParam(required = false) String statut,
+            @RequestParam(required = false) String localisation,
+            @RequestParam(required = false) String categorieNom,
+            Model model,
+            HttpSession session) {
+
         Utilisateur agent = (Utilisateur) session.getAttribute("utilisateur");
 
         if (agent == null || agent.getRole() != RoleEnum.AGENT_MUNICIPAL) {
             return "redirect:/login";
         }
 
-        List<Incident> incidents = incidentWorkflowService.getIncidentsAssignes(agent);
+        // ✅ NOUVEAU : création du filtre
+        FiltreIncident filtre = new FiltreIncident();
+        filtre.setStatut(statut);
+        filtre.setLocalisation(localisation);
+        filtre.setCategorieNom(categorieNom);
 
+        // ✅ NOUVEAU : pagination + tri
+        Pageable pageable = PageRequest.of(page, size,
+                sortDir.equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, sortField);
+
+        // ✅ NOUVEAU : recherche paginée
+        Page<Incident> incidents = incidentWorkflowService
+                .rechercherIncidentsAgent(agent.getId(), filtre, pageable);
+
+        // ✅ TES attributs existants + NOUVEAUX
         model.addAttribute("pageTitle", "Mes incidents assignés");
-        model.addAttribute("incidents", incidents);
+        model.addAttribute("incidents", incidents);  // maintenant c'est une Page<Incident>
         model.addAttribute("userNom", agent.getNom());
+
+        // ✅ NOUVEAUX attributs pour le template
+        model.addAttribute("filtre", filtre);
+        model.addAttribute("currentPage", incidents.getNumber());
+        model.addAttribute("totalPages", incidents.getTotalPages());
+        model.addAttribute("sortField", sortField);
+        model.addAttribute("sortDir", sortDir);
 
         return "agent/incidents";
     }
