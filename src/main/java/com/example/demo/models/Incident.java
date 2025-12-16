@@ -46,6 +46,13 @@ public class Incident {
     @Transient
     private Long quartierId;
 
+    // Commentaire laissé par le citoyen lors de la clôture
+    @Column(length = 1000)
+    private String feedbackCitoyen;
+
+    // éventuellement une note
+    private Integer noteCitoyen; // 1..5 par exemple
+
     public Long getCategorieId() { return categorieId; }
     public void setCategorieId(Long categorieId) { this.categorieId = categorieId; }
 

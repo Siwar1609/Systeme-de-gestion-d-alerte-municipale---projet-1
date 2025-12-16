@@ -19,6 +19,8 @@
             <th>ID</th>
             <th>Titre</th>
             <th>Description</th>
+            <th>Localisation</th>
+            <th>Photos</th>
             <th>Citoyen</th>
             <th>Catégorie</th>
             <th>Priorité</th>
@@ -32,6 +34,23 @@
             <td th:text="${incident.id}"></td>
             <td th:text="${incident.titre}"></td>
             <td th:text="${incident.description}"></td>
+            <td>
+                <span th:text="${incident.localisation}"></span><br/>
+                <small class="text-muted"
+                       th:text="'Lat : ' + ${incident.latitude} + ' / Lng : ' + ${incident.longitude}"></small>
+            </td>
+            <td>
+                <div class="d-flex flex-wrap gap-1" th:if="${incident.nomsPhotos != null}">
+                    <img th:each="nom : ${#strings.arraySplit(incident.nomsPhotos, ';')}"
+                         th:src="@{'/uploads/incidents/' + ${nom}}"
+                         alt="Photo incident"
+                         class="img-thumbnail"
+                         style="max-height: 60px;">
+                </div>
+                <span th:if="${incident.nomsPhotos == null}">
+        —
+                           </span>
+            </td>
 
             <!-- 👤 Citoyen -->
             <td>
