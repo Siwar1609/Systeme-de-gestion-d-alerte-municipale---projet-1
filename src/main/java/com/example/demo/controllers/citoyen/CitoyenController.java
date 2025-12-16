@@ -1,6 +1,7 @@
 package com.example.demo.controllers.citoyen;
 
 import com.example.demo.models.*;
+import com.example.demo.models.enums.RoleEnum;
 import com.example.demo.models.enums.StatutIncidentEnum;
 import com.example.demo.repositories.UtilisateurRepository;
 import com.example.demo.services.Citoyen.IncidentService;
@@ -16,6 +17,12 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import com.example.demo.models.FiltreIncident;
+
 
 @Controller
 @RequestMapping("/citoyens")
@@ -107,18 +114,46 @@ public class CitoyenController {
         return "redirect:/citoyens/dashboard";
     }
     @GetMapping("/incidents/mes-signalements")
-    public String mesSignalements(Model model, HttpSession session) {
+    public String mesSignalements(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "dateSignalement") String sortField,
+            @RequestParam(defaultValue = "desc") String sortDir,
+            @RequestParam(required = false) String statut,
+            @RequestParam(required = false) String localisation,
+            @RequestParam(required = false) String categorieNom,
+            Model model,
+            HttpSession session) {
+
         Utilisateur citoyen = (Utilisateur) session.getAttribute("utilisateur");
-        if (citoyen == null) {
+        if (citoyen == null || citoyen.getRole() != RoleEnum.CITOYEN) {
             return "redirect:/login";
         }
 
+        // ✅ TES attributs existants
         model.addAttribute("pageTitle", "Mes signalements");
         model.addAttribute("userNom", session.getAttribute("userNom"));
 
-        // récupérer les incidents du citoyen connecté
-        var incidents = incidentService.findByCitoyenId(citoyen.getId());
+        // ✅ NOUVEAU : Filtre + Pagination
+        FiltreIncident filtre = new FiltreIncident();
+        filtre.setStatut(statut);
+        filtre.setLocalisation(localisation);
+        filtre.setCategorieNom(categorieNom);
+
+        Pageable pageable = PageRequest.of(page, size,
+                sortDir.equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, sortField);
+
+        // ✅ PAGINÉ : UNIQUEMENT incidents du citoyen
+        Page<Incident> incidents = incidentWorkflowService
+                .rechercherIncidentsCitoyen(citoyen.getId(), filtre, pageable);
+
+        // ✅ NOUVEAUX attributs pour le template
         model.addAttribute("incidents", incidents);
+        model.addAttribute("filtre", filtre);
+        model.addAttribute("currentPage", incidents.getNumber());
+        model.addAttribute("totalPages", incidents.getTotalPages());
+        model.addAttribute("sortField", sortField);
+        model.addAttribute("sortDir", sortDir);
 
         return "citoyens/mes-signalements";
     }

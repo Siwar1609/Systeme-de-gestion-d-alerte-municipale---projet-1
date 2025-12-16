@@ -1,5 +1,6 @@
 package com.example.demo.services.incidentworkflow;
 
+import com.example.demo.models.FiltreIncident;
 import com.example.demo.models.Incident;
 import com.example.demo.models.Notification;
 import com.example.demo.models.Utilisateur;
@@ -11,8 +12,12 @@ import com.example.demo.repositories.NotificationRepository;
 import com.example.demo.repositories.UtilisateurRepository;
 import com.example.demo.services.EmailService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -26,6 +31,31 @@ public class IncidentWorkFlowService {
     private final UtilisateurRepository utilisateurRepository;
     private final NotificationRepository notificationRepository;
     private final EmailService emailService;
+
+
+    // RECHERCHE agent
+    public Page<Incident> rechercherIncidentsAgent(Long agentId, FiltreIncident filtre, Pageable pageable) {
+        Specification<Incident> spec = filtre.toSpecification();
+
+        // Limiter aux incidents de cet agent
+        spec = spec.and((root, query, cb) ->
+                cb.equal(root.get("agent").get("id"), agentId));
+
+        return incidentRepository.findAll(spec, pageable);
+    }
+    //Recherche admin
+    public Page<Incident> rechercherIncidents(FiltreIncident filtre, Pageable pageable) {
+        Specification<Incident> spec = filtre.toSpecification();
+        return incidentRepository.findAll(spec, pageable);
+    }
+    //Recherche Citoyen
+    public Page<Incident> rechercherIncidentsCitoyen(Long citoyenId, FiltreIncident filtre, Pageable pageable) {
+        Specification<Incident> spec = filtre.toSpecification();
+        spec = spec.and((root, query, cb) ->
+                cb.equal(root.get("citoyen").get("id"), citoyenId));
+        return incidentRepository.findAll(spec, pageable);
+    }
+
 
     // ========================= ADMIN =========================
 
@@ -245,5 +275,8 @@ public class IncidentWorkFlowService {
         return incidentRepository.findByIdAndAgentId(id, agentId)
                 .orElseThrow(() -> new RuntimeException("Incident introuvable"));
     }
+
+
+
 
 }

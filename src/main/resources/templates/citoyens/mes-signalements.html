@@ -4,120 +4,214 @@
     <meta charset="UTF-8">
     <title th:text="${pageTitle}">Mes signalements</title>
 
-    <!-- Bootstrap -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
-          rel="stylesheet">
+    <!-- Bootstrap + FontAwesome -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 
     <style>
-        .incident-card {
-            border-radius: 0.75rem;
-            box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.05);
-        }
-        .status-badge {
-            font-size: 0.85rem;
-            padding: 0.35rem 0.6rem;
-            border-radius: 999px;
-        }
+        .incident-card { border-radius: 0.75rem; box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.05); }
+        .status-badge { font-size: 0.85rem; padding: 0.35rem 0.6rem; border-radius: 999px; }
+        .filter-card { box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 2rem; }
+        .sort-icon { font-size: 0.8em; }
     </style>
 </head>
 <body class="bg-light">
 
 <div class="container py-4">
+    <!-- 🔍 NOUVEAU : Formulaire de recherche -->
+    <div class="card filter-card">
+        <div class="card-body">
+            <form method="get" th:action="@{/citoyens/incidents/mes-signalements}">
+                <div class="row g-3 align-items-end">
+                    <div class="col-md-2">
+                        <label class="form-label small text-muted">Statut</label>
+                        <select name="statut" class="form-select">
+                            <option value="">Tous statuts</option>
+                            <option value="SIGNALE" th:selected="${filtre?.statut == 'SIGNALE'}">Signalé</option>
+                            <option value="EN_COURS_DE_CHARGE" th:selected="${filtre?.statut == 'EN_COURS_DE_CHARGE'}">En charge</option>
+                            <option value="EN_RESOLUTION" th:selected="${filtre?.statut == 'EN_RESOLUTION'}">Résolution</option>
+                            <option value="RESOLU" th:selected="${filtre?.statut == 'RESOLU'}">Résolu</option>
+                            <option value="CLOTURE" th:selected="${filtre?.statut == 'CLOTURE'}">Clôturé</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label small text-muted">Quartier</label>
+                        <input type="text" name="localisation" class="form-control"
+                               th:value="${filtre?.localisation}" placeholder="Mon quartier...">
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label small text-muted">Catégorie</label>
+                        <input type="text" name="categorieNom" class="form-control"
+                               th:value="${filtre?.categorieNom}" placeholder="Poubelle...">
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-search me-1"></i>Filtrer
+                        </button>
+                    </div>
+                    <div class="col-md-2">
+                        <a th:href="@{/citoyens/incidents/mes-signalements}" class="btn btn-outline-secondary w-100">
+                            <i class="fas fa-redo me-1"></i>Réinitialiser
+                        </a>
+                    </div>
+                    <div class="col-md-2">
+                        <a href="/citoyens/incidents/nouveau" class="btn btn-success w-100">
+                            <i class="fas fa-plus me-1"></i>Nouveau
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 📊 Header + Compteur -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h1 class="h3 mb-1">Mes signalements</h1>
-            <p class="text-muted mb-0">Consultez et modifiez vos incidents signalés.</p>
+            <div class="h5 mb-0 text-primary" th:text="${incidents.totalElements} + ' incident(s)'">
+                0 incident(s)
+            </div>
+            <small class="text-muted" th:if="${totalPages > 1}">
+                Page <span th:text="${currentPage + 1} + '/' + ${totalPages}"></span>
+            </small>
         </div>
         <a href="/citoyens/dashboard" class="btn btn-outline-secondary">
             ← Retour au tableau de bord
         </a>
     </div>
 
+    <!-- TES ALERTES -->
+    <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+    <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+
+    <!-- 🎨 TON TABLEAU (adapté pagination) -->
     <div class="card incident-card">
-        <div class="card-body">
-            <div th:if="${#lists.isEmpty(incidents)}" class="text-center py-5">
-                <p class="text-muted mb-3">Vous n'avez encore signalé aucun incident.</p>
+        <div class="card-body p-0">
+            <!-- ✅ ÉTAT VIDE -->
+            <div th:if="${incidents.content?.isEmpty()}" class="text-center py-5">
+                <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                <p class="text-muted mb-3">Aucun incident trouvé avec ces critères.</p>
                 <a href="/citoyens/incidents/nouveau" class="btn btn-primary">
-                    Signaler un incident
+                    <i class="fas fa-plus me-1"></i>Signaler un incident
                 </a>
             </div>
 
-            <div th:if="${!#lists.isEmpty(incidents)}">
-                <table class="table align-middle">
-                    <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Titre</th>
-                        <th>Description</th>
-                        <th>Catégorie</th>
-                        <th>Quartier</th>
-                        <th>Date</th>
-                        <th>Statut</th>
-                        <th>Localisation</th>
-                        <th>Photos</th>
-                        <th class="text-end">Actions</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr th:each="incident, iter : ${incidents}">
-                        <td th:text="${iter.count}"></td>
-                        <td th:text="${incident.titre}"></td>
-                        <td th:text="${incident.description}"></td>
-                        <td th:text="${incident.categorie != null ? incident.categorie.nom : '—'}"></td>
-                        <td th:text="${incident.quartier != null ? incident.quartier.nom : '—'}"></td>
-                        <td th:text="${#temporals.format(incident.dateSignalement, 'dd/MM/yyyy HH:mm')}"></td>
-                        <td>
-                            <span class="status-badge"
-                                  th:classappend="${incident.statut.name() == 'SIGNALE'} ? ' bg-warning-subtle text-warning-emphasis'
-                                                  : (${incident.statut.name() == 'EN_COURS'} ? ' bg-info-subtle text-info-emphasis'
-                                                  : (${incident.statut.name() == 'RESOLU'} ? ' bg-success-subtle text-success-emphasis'
-                                                  : ' bg-secondary-subtle text-secondary-emphasis'))"
-                                  th:text="${incident.statut}">
-                            </span>
-                        </td>
-                        <td>
-                            <span th:text="${incident.localisation}"></span><br/>
-                            <small class="text-muted"
-                                   th:text="'Lat : ' + ${incident.latitude} + ' / Lng : ' + ${incident.longitude}"></small>
-                        </td>
-                        <td>
-                            <div class="d-flex flex-wrap gap-1" th:if="${incident.nomsPhotos != null}">
-                                <img th:each="nom : ${#strings.arraySplit(incident.nomsPhotos, ';')}"
-                                     th:src="@{'/uploads/incidents/' + ${nom}}"
-                                     alt="Photo incident"
-                                     class="img-thumbnail"
-                                     style="max-height: 60px;">
-                            </div>
-                            <span th:if="${incident.nomsPhotos == null}">
-        —
-                           </span>
-                        </td>
-                        <td class="text-end">
-                            <a th:href="@{'/citoyens/incidents/' + ${incident.id} + '/modifier'}"
-                               class="btn btn-sm btn-outline-primary">
-                                Modifier
-                            </a>
-                            <form th:action="@{'/citoyens/incidents/' + ${incident.id} + '/supprimer'}"
-                                  method="post" class="d-inline"
-                                  onsubmit="return confirm('Voulez-vous vraiment supprimer cet incident ?');">
-                                <button type="submit" class="btn btn-sm btn-outline-danger">
-                                    Supprimer
-                                </button>
-                            </form>
-                            <!-- Bouton Clôturer visible seulement si statut = RESOLU -->
-                            <a th:if="${incident.statut.name() == 'RESOLU'}"
-                               th:href="@{'/citoyens/incidents/' + ${incident.id} + '/feedback'}"
-                               class="btn btn-sm btn-success">
-                                Clôturer / Donner un avis
-                            </a>
-                        </td>
-                    </tr>
-                    </tbody>
-                </table>
+            <!-- ✅ TABLEAU PAGINÉ -->
+            <div th:if="${!incidents.content?.isEmpty()}">
+                <div class="table-responsive">
+                    <table class="table align-middle mb-0">
+                        <thead class="table-dark">
+                        <tr>
+                            <th>#</th>
+                            <th>
+                                <a th:href="@{/citoyens/incidents/mes-signalements(page=0, sortField='titre', sortDir=${sortDir == 'asc' ? 'desc' : 'asc'},
+                                        statut=${filtre?.statut}, localisation=${filtre?.localisation}, categorieNom=${filtre?.categorieNom})}"
+                                   class="text-white text-decoration-none">
+                                    Titre <i class="sort-icon"
+                                             th:classappend="${sortField == 'titre' && sortDir == 'asc'} ? 'fas fa-sort-up' :
+                                                             (${sortField == 'titre' && sortDir == 'desc'} ? 'fas fa-sort-down' : 'fas fa-sort')"></i>
+                                </a>
+                            </th>
+                            <th>Description</th>
+                            <th>Catégorie</th>
+                            <th>
+                                <a th:href="@{/citoyens/incidents/mes-signalements(page=0, sortField='quartier', sortDir=${sortDir == 'asc' ? 'desc' : 'asc'},
+                                        statut=${filtre?.statut}, localisation=${filtre?.localisation}, categorieNom=${filtre?.categorieNom})}"
+                                   class="text-white text-decoration-none">
+                                    Quartier <i class="sort-icon"
+                                                th:classappend="${sortField == 'quartier' && sortDir == 'asc'} ? 'fas fa-sort-up' :
+                                                                (${sortField == 'quartier' && sortDir == 'desc'} ? 'fas fa-sort-down' : 'fas fa-sort')"></i>
+                                </a>
+                            </th>
+                            <th>Date</th>
+                            <th>Statut</th>
+                            <th>Localisation</th>
+                            <th>Photos</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <!-- ✅ CHANGÉ : incidents.content -->
+                        <tr th:each="incident, iter : ${incidents.content}">
+                            <td th:text="${iter.count}"></td>
+                            <td th:text="${incident.titre}"></td>
+                            <td th:text="${incident.description}"></td>
+                            <td th:text="${incident.categorie != null ? incident.categorie.nom : '—'}"></td>
+                            <td th:text="${incident.quartier != null ? incident.quartier.nom : '—'}"></td>
+                            <td th:text="${#temporals.format(incident.dateSignalement, 'dd/MM/yyyy HH:mm')}"></td>
+                            <td>
+                                <span class="status-badge"
+                                      th:classappend="${incident.statut.name() == 'SIGNALE'} ? 'bg-warning-subtle text-warning-emphasis' :
+                                                      (${incident.statut.name() == 'EN_COURS_DE_CHARGE'} ? 'bg-info-subtle text-info-emphasis' :
+                                                      (${incident.statut.name() == 'EN_RESOLUTION'} ? 'bg-primary-subtle text-primary-emphasis' :
+                                                      (${incident.statut.name() == 'RESOLU'} ? 'bg-success-subtle text-success-emphasis' :
+                                                      'bg-secondary-subtle text-secondary-emphasis')))"
+                                      th:text="${incident.statut}">
+                                </span>
+                            </td>
+                            <td>
+                                <span th:text="${incident.localisation}"></span><br/>
+                                <small class="text-muted" th:text="'Lat : ' + ${incident.latitude} + ' / Lng : ' + ${incident.longitude}"></small>
+                            </td>
+                            <td>
+                                <div class="d-flex flex-wrap gap-1" th:if="${incident.nomsPhotos != null}">
+                                    <img th:each="nom : ${#strings.arraySplit(incident.nomsPhotos, ';')}"
+                                         th:src="@{'/uploads/incidents/' + ${nom}}"
+                                         alt="Photo incident"
+                                         class="img-thumbnail"
+                                         style="max-height: 60px;">
+                                </div>
+                                <span th:if="${incident.nomsPhotos == null}">—</span>
+                            </td>
+                            <td class="text-end">
+                                <div class="btn-group-vertical btn-group-sm w-100" role="group">
+                                    <a th:href="@{'/citoyens/incidents/' + ${incident.id} + '/modifier'}" class="btn btn-outline-primary">
+                                        Modifier
+                                    </a>
+                                    <form th:action="@{'/citoyens/incidents/' + ${incident.id} + '/supprimer'}" method="post" class="d-inline mb-1"
+                                          onsubmit="return confirm('Voulez-vous vraiment supprimer cet incident ?');">
+                                        <button type="submit" class="btn btn-outline-danger w-100">Supprimer</button>
+                                    </form>
+                                    <a th:if="${incident.statut.name() == 'RESOLU'}"
+                                       th:href="@{'/citoyens/incidents/' + ${incident.id} + '/feedback'}" class="btn btn-success">
+                                        Donner un avis
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
-
         </div>
     </div>
+
+    <!-- 📄 PAGINATION -->
+    <nav th:if="${totalPages > 1}" class="mt-4">
+        <ul class="pagination justify-content-center">
+            <li class="page-item" th:classappend="${!incidents.hasPrevious()} ? 'disabled'">
+                <a class="page-link" th:href="@{/citoyens/incidents/mes-signalements(
+                    page=${incidents.number - 1}, size=10, sortField=${sortField}, sortDir=${sortDir},
+                    statut=${filtre?.statut}, localisation=${filtre?.localisation}, categorieNom=${filtre?.categorieNom})}">
+                    ← Précédent
+                </a>
+            </li>
+            <li th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+                class="page-item" th:classappend="${i == currentPage} ? 'active'">
+                <a class="page-link" th:href="@{/citoyens/incidents/mes-signalements(
+                    page=${i}, size=10, sortField=${sortField}, sortDir=${sortDir},
+                    statut=${filtre?.statut}, localisation=${filtre?.localisation}, categorieNom=${filtre?.categorieNom})}"
+                   th:text="${i + 1}"></a>
+            </li>
+            <li class="page-item" th:classappend="${!incidents.hasNext()} ? 'disabled'">
+                <a class="page-link" th:href="@{/citoyens/incidents/mes-signalements(
+                    page=${incidents.number + 1}, size=10, sortField=${sortField}, sortDir=${sortDir},
+                    statut=${filtre?.statut}, localisation=${filtre?.localisation}, categorieNom=${filtre?.categorieNom})}">
+                    Suivant →
+                </a>
+            </li>
+        </ul>
+    </nav>
 </div>
 
 </body>

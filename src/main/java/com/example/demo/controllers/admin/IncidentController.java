@@ -14,6 +14,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import com.example.demo.models.FiltreIncident;
 
 import java.util.List;
 
@@ -26,24 +31,46 @@ public class IncidentController {
 
     // ----------- LISTE DES INCIDENTS -----------
     @GetMapping
-    public String afficherIncidents(Model model, HttpSession session) {
-        Utilisateur admin = (Utilisateur) session.getAttribute("utilisateur");
+    public String afficherIncidents(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "dateSignalement") String sortField,
+            @RequestParam(defaultValue = "desc") String sortDir,
+            @RequestParam(required = false) String statut,
+            @RequestParam(required = false) String localisation,
+            @RequestParam(required = false) String categorieNom,
+            Model model,
+            HttpSession session) {
 
-        // Sécurité : accès uniquement aux admins
+        Utilisateur admin = (Utilisateur) session.getAttribute("utilisateur");
         if (admin == null || admin.getRole() != RoleEnum.ADMINISTRATEUR) {
             return "redirect:/login";
         }
 
-        List<Incident> incidents = incidentWorkflowService.getTousLesIncidents();
-        List<Utilisateur> agents = incidentWorkflowService.getTousLesAgents();
+        FiltreIncident filtre = new FiltreIncident();
+        filtre.setStatut(statut);
+        filtre.setLocalisation(localisation);
+        filtre.setCategorieNom(categorieNom);
+
+        Pageable pageable = PageRequest.of(page, size,
+                sortDir.equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC, sortField);
+
+        Page<Incident> incidents = incidentWorkflowService.rechercherIncidents(filtre, pageable);
 
         model.addAttribute("pageTitle", "État des incidents");
         model.addAttribute("userNom", admin.getNom());
         model.addAttribute("incidents", incidents);
-        model.addAttribute("agents", agents);
+        model.addAttribute("agents", incidentWorkflowService.getTousLesAgents());
+
+        model.addAttribute("filtre", filtre);
+        model.addAttribute("currentPage", incidents.getNumber());
+        model.addAttribute("totalPages", incidents.getTotalPages());
+        model.addAttribute("sortField", sortField);
+        model.addAttribute("sortDir", sortDir);
 
         return "admin/incidents/incidents";
     }
+
     @PostMapping("/modifierPriorite")
     public String modifierPriorite(
             @RequestParam Long incidentId,

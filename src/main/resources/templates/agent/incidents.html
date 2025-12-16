@@ -3,131 +3,212 @@
 <head>
     <meta charset="UTF-8">
     <title>Mes Incidents Assignés</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .filter-card { box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .sort-icon { font-size: 0.8em; }
+    </style>
 </head>
-<body>
+<body class="bg-light">
 
 <div class="container mt-5">
-    <h2 class="mb-4">Mes incidents assignés</h2>
+    <!-- 🔍 NOUVEAU : Formulaire de recherche -->
+    <div class="card filter-card mb-4">
+        <div class="card-body">
+            <form method="get" th:action="@{/agent/incidents}">
+                <div class="row g-3">
+                    <div class="col-md-2">
+                        <select name="statut" class="form-select">
+                            <option value="">Tous statuts</option>
+                            <option value="SIGNALE" th:selected="${filtre.statut == 'SIGNALE'}">Signalé</option>
+                            <option value="EN_COURS_DE_CHARGE" th:selected="${filtre.statut == 'EN_COURS_DE_CHARGE'}">En charge</option>
+                            <option value="EN_RESOLUTION" th:selected="${filtre.statut == 'EN_RESOLUTION'}">Résolution</option>
+                            <option value="RESOLU" th:selected="${filtre.statut == 'RESOLU'}">Résolu</option>
+                            <option value="CLOTURE" th:selected="${filtre.statut == 'CLOTURE'}">Clôturé</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <input type="text" name="localisation" class="form-control"
+                               th:value="${filtre.localisation}" placeholder="Localisation...">
+                    </div>
+                    <div class="col-md-2">
+                        <input type="text" name="categorieNom" class="form-control"
+                               th:value="${filtre.categorieNom}" placeholder="Catégorie...">
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-search me-1"></i>Filtrer
+                        </button>
+                    </div>
+                    <div class="col-md-2">
+                        <a th:href="@{/agent/incidents}" class="btn btn-outline-secondary w-100">
+                            <i class="fas fa-redo me-1"></i>Réinitialiser
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 📊 Compteur -->
+    <div class="row mb-3">
+        <div class="col">
+            <h5 class="mb-0">
+                <i class="fas fa-list me-2 text-primary"></i>
+                <span th:text="${incidents.totalElements} + ' incident(s)'">0 incident(s)</span>
+                <small class="text-muted ms-2" th:if="${totalPages > 1}">
+                    Page <span th:text="${currentPage + 1} + '/' + ${totalPages}"></span>
+                </small>
+            </h5>
+        </div>
+    </div>
 
     <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
     <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
 
-    <table class="table table-bordered table-hover align-middle">
-        <thead class="table-dark">
-        <tr>
-            <th>ID</th>
-            <th>Titre</th>
-            <th>Description</th>
-            <th>Localisation</th>
-            <th>Photos</th>
-            <th>Citoyen</th>
-            <th>Catégorie</th>
-            <th>Priorité</th>
-            <th>Statut</th>
-            <th>Feedback Citoyen</th>
-            <th style="width: 180px">Actions</th>
-        </tr>
-        </thead>
+    <!-- 🎨 TON TABLEAU (adapté pagination) -->
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover align-middle">
+            <thead class="table-dark">
+            <tr>
+                <th>ID</th>
+                <th>
+                    <a th:href="@{/agent/incidents(page=0, sortField='titre', sortDir=${sortDir == 'asc' ? 'desc' : 'asc'},
+                            statut=${filtre.statut}, localisation=${filtre.localisation}, categorieNom=${filtre.categorieNom})}"
+                       class="text-white text-decoration-none">
+                        Titre <i class="sort-icon"
+                                 th:classappend="${sortField == 'titre' && sortDir == 'asc'} ? 'fas fa-sort-up' :
+                                                 (${sortField == 'titre' && sortDir == 'desc'} ? 'fas fa-sort-down' : 'fas fa-sort')"></i>
+                    </a>
+                </th>
+                <th>Description</th>
+                <th>
+                    <a th:href="@{/agent/incidents(page=0, sortField='localisation', sortDir=${sortDir == 'asc' ? 'desc' : 'asc'},
+                            statut=${filtre.statut}, localisation=${filtre.localisation}, categorieNom=${filtre.categorieNom})}"
+                       class="text-white text-decoration-none">
+                        Localisation <i class="sort-icon"
+                                        th:classappend="${sortField == 'localisation' && sortDir == 'asc'} ? 'fas fa-sort-up' :
+                                                        (${sortField == 'localisation' && sortDir == 'desc'} ? 'fas fa-sort-down' : 'fas fa-sort')"></i>
+                    </a>
+                </th>
+                <th>Photos</th>
+                <th>Citoyen</th>
+                <th>Catégorie</th>
+                <th>Priorité</th>
+                <th>Statut</th>
+                <th>Feedback Citoyen</th>
+                <th style="width: 200px">Actions</th>
+            </tr>
+            </thead>
 
-        <tbody>
-        <tr th:each="incident : ${incidents}">
-            <td th:text="${incident.id}"></td>
-            <td th:text="${incident.titre}"></td>
-            <td th:text="${incident.description}"></td>
-            <td>
-                <span th:text="${incident.localisation}"></span><br/>
-                <small class="text-muted"
-                       th:text="'Lat : ' + ${incident.latitude} + ' / Lng : ' + ${incident.longitude}"></small>
-            </td>
-            <td>
-                <div class="d-flex flex-wrap gap-1" th:if="${incident.nomsPhotos != null}">
-                    <img th:each="nom : ${#strings.arraySplit(incident.nomsPhotos, ';')}"
-                         th:src="@{'/uploads/incidents/' + ${nom}}"
-                         alt="Photo incident"
-                         class="img-thumbnail"
-                         style="max-height: 60px;">
-                </div>
-                <span th:if="${incident.nomsPhotos == null}">
-        —
-                           </span>
-            </td>
-
-            <!-- 👤 Citoyen -->
-            <td>
-                <span th:text="${incident.citoyen != null ? incident.citoyen.nom : '—'}"></span>
-            </td>
-
-            <td th:text="${incident.categorie.nom}"></td>
-
-            <td th:text="${incident.priorite != null ? incident.priorite : 'Non définie'}"></td>
-
-            <td>
-                <span class="badge bg-info" th:text="${incident.statut}"></span>
-            </td>
-            <td>
-                <div th:if="${incident.statut.name() == 'CLOTURE'}">
-                    <div th:if="${incident.noteCitoyen != null}">
-                        <strong th:text="${incident.noteCitoyen} + '/5'"></strong><br/>
-                    </div>
+            <tbody>
+            <!-- ✅ CHANGÉ : incidents.content au lieu de incidents -->
+            <tr th:each="incident : ${incidents.content}">
+                <!-- TES CELLULES EXISTANTES (identiques) -->
+                <td th:text="${incident.id}"></td>
+                <td th:text="${incident.titre}"></td>
+                <td th:text="${incident.description}"></td>
+                <td>
+                    <span th:text="${incident.localisation}"></span><br/>
                     <small class="text-muted"
-                           th:if="${incident.feedbackCitoyen != null and !#strings.isEmpty(incident.feedbackCitoyen)}"
-                           th:text="${incident.feedbackCitoyen}"></small>
-                    <span class="text-muted"
-                          th:if="${incident.noteCitoyen == null and (incident.feedbackCitoyen == null or #strings.isEmpty(incident.feedbackCitoyen))}">
-            Aucun feedback
-        </span>
-                </div>
-                <span class="text-muted"
-                      th:if="${incident.statut.name() != 'CLOTURE'}">
-        En attente du citoyen
-    </span>
-            </td>
+                           th:text="'Lat : ' + ${incident.latitude} + ' / Lng : ' + ${incident.longitude}"></small>
+                </td>
+                <td>
+                    <div class="d-flex flex-wrap gap-1" th:if="${incident.nomsPhotos != null}">
+                        <img th:each="nom : ${#strings.arraySplit(incident.nomsPhotos, ';')}"
+                             th:src="@{'/uploads/incidents/' + ${nom}}"
+                             alt="Photo incident"
+                             class="img-thumbnail"
+                             style="max-height: 60px;">
+                    </div>
+                    <span th:if="${incident.nomsPhotos == null}">—</span>
+                </td>
+                <td><span th:text="${incident.citoyen != null ? incident.citoyen.nom : '—'}"></span></td>
+                <td th:text="${incident.categorie.nom}"></td>
+                <td th:text="${incident.priorite != null ? incident.priorite : 'Non définie'}"></td>
+                <td>
+                    <span class="badge bg-info" th:text="${incident.statut}"></span>
+                </td>
+                <!-- TON FEEDBACK (identique) -->
+                <td>
+                    <div th:if="${incident.statut.name() == 'CLOTURE'}">
+                        <div th:if="${incident.noteCitoyen != null}">
+                            <strong th:text="${incident.noteCitoyen} + '/5'"></strong><br/>
+                        </div>
+                        <small class="text-muted"
+                               th:if="${incident.feedbackCitoyen != null and !#strings.isEmpty(incident.feedbackCitoyen)}"
+                               th:text="${incident.feedbackCitoyen}"></small>
+                        <span class="text-muted"
+                              th:if="${incident.noteCitoyen == null and (incident.feedbackCitoyen == null or #strings.isEmpty(incident.feedbackCitoyen))}">
+                            Aucun feedback
+                        </span>
+                    </div>
+                    <span class="text-muted" th:if="${incident.statut.name() != 'CLOTURE'}">
+                        En attente du citoyen
+                    </span>
+                </td>
+                <!-- TES ACTIONS (identiques) -->
+                <td>
+                    <a th:href="@{/agent/incidents/{id}(id=${incident.id})}"
+                       class="btn btn-outline-info btn-sm w-100 mb-1">
+                        Détail
+                    </a>
+                    <form th:action="@{/agent/incidents/commencer}" method="post"
+                          th:if="${incident.statut.name() == 'EN_COURS_DE_CHARGE'}" class="mb-1">
+                        <input type="hidden" name="incidentId" th:value="${incident.id}">
+                        <button type="submit" class="btn btn-primary btn-sm w-100">Commencer</button>
+                    </form>
+                    <form th:action="@{/agent/incidents/resolu}" method="post"
+                          th:if="${incident.statut.name() == 'EN_RESOLUTION'}" class="mb-1">
+                        <input type="hidden" name="incidentId" th:value="${incident.id}">
+                        <button type="submit" class="btn btn-success btn-sm w-100">Marquer résolu</button>
+                    </form>
+                    <small class="text-muted d-block text-center"
+                           th:if="${incident.statut.name() == 'EN_RESOLUTION' || incident.statut.name() == 'RESOLU'}">
+                        Email envoyé au citoyen
+                    </small>
+                </td>
+            </tr>
 
+            <!-- ✅ ADAPTÉ : état vide -->
+            <tr th:if="${incidents.content.isEmpty()}">
+                <td colspan="11" class="text-center text-muted py-5">
+                    <i class="fas fa-search fa-3x d-block mb-3 opacity-50"></i>
+                    <h5>Aucun incident trouvé</h5>
+                    <small>Essayez de modifier vos critères de recherche</small>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
 
-
-            <td>
-                <a th:href="@{/agent/incidents/{id}(id=${incident.id})}"
-                   class="btn btn-outline-info btn-sm w-100 mb-1">
-                    Détail
+    <!-- 📄 PAGINATION NOUVELLE -->
+    <nav th:if="${totalPages > 1}" class="mt-4">
+        <ul class="pagination justify-content-center">
+            <li class="page-item" th:classappend="${!incidents.hasPrevious()} ? 'disabled'">
+                <a class="page-link" th:href="@{/agent/incidents(
+                    page=${incidents.number - 1}, size=10, sortField=${sortField}, sortDir=${sortDir},
+                    statut=${filtre.statut}, localisation=${filtre.localisation}, categorieNom=${filtre.categorieNom})}">
+                    ← Précédent
                 </a>
-                <!-- ▶ Commencer -->
-                <form th:action="@{/agent/incidents/commencer}"
-                      method="post"
-                      th:if="${incident.statut.name() == 'EN_COURS_DE_CHARGE'}"
-                      class="mb-1">
-                    <input type="hidden" name="incidentId" th:value="${incident.id}">
-                    <button type="submit" class="btn btn-primary btn-sm w-100">
-                        Commencer
-                    </button>
-                </form>
-
-                <!-- ✔ Résolu -->
-                <form th:action="@{/agent/incidents/resolu}"
-                      method="post"
-                      th:if="${incident.statut.name() == 'EN_RESOLUTION'}"
-                      class="mb-1">
-                    <input type="hidden" name="incidentId" th:value="${incident.id}">
-                    <button type="submit" class="btn btn-success btn-sm w-100">
-                        Marquer résolu
-                    </button>
-                </form>
-
-                <!-- ✉ Info -->
-                <small class="text-muted d-block text-center"
-                       th:if="${incident.statut.name() == 'EN_RESOLUTION' || incident.statut.name() == 'RESOLU'}">
-                    Email envoyé au citoyen
-                </small>
-            </td>
-        </tr>
-
-        <tr th:if="${#lists.isEmpty(incidents)}">
-            <td colspan="8" class="text-center text-muted">
-                Aucun incident assigné.
-            </td>
-        </tr>
-        </tbody>
-    </table>
+            </li>
+            <li th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+                class="page-item" th:classappend="${i == currentPage} ? 'active'">
+                <a class="page-link" th:href="@{/agent/incidents(
+                    page=${i}, size=10, sortField=${sortField}, sortDir=${sortDir},
+                    statut=${filtre.statut}, localisation=${filtre.localisation}, categorieNom=${filtre.categorieNom})}"
+                   th:text="${i + 1}"></a>
+            </li>
+            <li class="page-item" th:classappend="${!incidents.hasNext()} ? 'disabled'">
+                <a class="page-link" th:href="@{/agent/incidents(
+                    page=${incidents.number + 1}, size=10, sortField=${sortField}, sortDir=${sortDir},
+                    statut=${filtre.statut}, localisation=${filtre.localisation}, categorieNom=${filtre.categorieNom})}">
+                    Suivant →
+                </a>
+            </li>
+        </ul>
+    </nav>
 
     <a th:href="@{/agent/dashboard}" class="btn btn-secondary mt-3">
         ← Retour au dashboard
