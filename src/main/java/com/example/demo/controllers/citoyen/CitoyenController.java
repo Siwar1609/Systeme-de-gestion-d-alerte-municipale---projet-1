@@ -22,6 +22,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import com.example.demo.models.FiltreIncident;
+import java.util.*;
 
 
 @Controller
@@ -73,6 +74,13 @@ public class CitoyenController {
             Model model) {
         System.out.println("Errors ? " + result.hasErrors());
         result.getAllErrors().forEach(e -> System.out.println(e));
+        List<String> erreursImages = validerImages(photos);
+        if (!erreursImages.isEmpty()) {
+            model.addAttribute("erreurImages", String.join("<br>", erreursImages));
+            model.addAttribute("categories", categorieService.findAll());
+            model.addAttribute("quartiers", quartierService.getAllQuartiers());
+            return "citoyens/incident-form";
+        }
         if (result.hasErrors()) {
             model.addAttribute("categories", categorieService.findAll());
             model.addAttribute("quartiers", quartierService.getAllQuartiers());
@@ -112,6 +120,50 @@ public class CitoyenController {
 
         redirectAttributes.addFlashAttribute("message", "Incident signalé avec succès !");
         return "redirect:/citoyens/dashboard";
+    }
+
+    private List<String> validerImages(MultipartFile[] photos) {
+        List<String> erreurs = new ArrayList<>();
+
+        if (photos == null || photos.length == 0) return erreurs;
+
+        // Max 5 fichiers
+        if (photos.length > 5) {
+            erreurs.add("❌ Maximum 5 photos autorisées");
+            return erreurs;
+        }
+
+        Set<String> typesAutorisés = Set.of("image/jpeg", "image/png", "image/jpg", "image/gif");
+        long maxTaille = 5 * 1024 * 1024L;
+
+        for (int i = 0; i < photos.length; i++) {
+            MultipartFile photo = photos[i];
+
+            // Fichier vide ? Skip
+            if (photo.isEmpty()) continue;
+
+            // 1️⃣ Taille max
+            if (photo.getSize() > maxTaille) {
+                erreurs.add(String.format("❌ Photo %d trop lourde: %.1fMo (max 5Mo)",
+                        i+1, photo.getSize() / 1024.0 / 1024.0));
+            }
+
+            // 2️⃣ Type MIME
+            String contentType = photo.getContentType();
+            if (contentType != null && !typesAutorisés.contains(contentType)) {
+                erreurs.add(String.format("❌ Photo %d: type non autorisé (%s)",
+                        i+1, contentType));
+            }
+
+            // 3️⃣ Extension (double vérif)
+            String nomOriginal = photo.getOriginalFilename();
+            if (nomOriginal != null && !nomOriginal.toLowerCase().matches(".*\\.(jpg|jpeg|png|gif)$")) {
+                erreurs.add(String.format("❌ Photo %d: extension non autorisée (.%s)",
+                        i+1, nomOriginal.substring(nomOriginal.lastIndexOf('.') + 1)));
+            }
+        }
+
+        return erreurs;
     }
     @GetMapping("/incidents/mes-signalements")
     public String mesSignalements(
