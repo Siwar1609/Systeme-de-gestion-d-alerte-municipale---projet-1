@@ -68,6 +68,20 @@ public class IncidentWorkFlowService {
 
         incident.setStatut(StatutIncidentEnum.EN_COURS_DE_CHARGE);
         incidentRepository.save(incident);
+        //NOTIFIER L'AGENT PAR EMAIL
+        notifierAgentAssignation(incident, agent);
+    }
+    private void notifierAgentAssignation(Incident incident, Utilisateur agent) {
+        // Notification en base
+        Notification notification = new Notification();
+        notification.setUtilisateur(agent);
+        notification.setMessage("Nouvel incident assigné : #" + incident.getId() + " - " + incident.getTitre());
+        notification.setType("ASSIGNATION");
+        notification.setDate(LocalDateTime.now());
+        notificationRepository.save(notification);
+
+        // Email à l'agent
+        emailService.envoyerEmailAssignationIncident(incident, agent);
     }
 
     public void modifierPrioriteIncident(Long incidentId,
@@ -136,7 +150,12 @@ public class IncidentWorkFlowService {
     // ======================== CITOYEN ========================
     // =========================================================
 
-    public void cloturerIncident(Long incidentId, Utilisateur citoyen) {
+    public Incident getIncidentByIdAndCitoyen(Long id, Long citoyenId) {
+        return incidentRepository.findByIdAndCitoyenId(id, citoyenId)
+                .orElseThrow(() -> new RuntimeException("Incident introuvable"));
+    }
+    public void cloturerIncident(Long incidentId, Utilisateur citoyen,String feedback,
+                                 Integer note) {
 
         Incident incident = incidentRepository.findById(incidentId)
                 .orElseThrow(() -> new RuntimeException("Incident introuvable"));
@@ -151,6 +170,9 @@ public class IncidentWorkFlowService {
         }
 
         incident.setStatut(StatutIncidentEnum.CLOTURE);
+
+        incident.setFeedbackCitoyen(feedback);
+        incident.setNoteCitoyen(note);
         incidentRepository.save(incident);
     }
 

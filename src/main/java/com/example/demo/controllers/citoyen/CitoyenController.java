@@ -1,9 +1,11 @@
 package com.example.demo.controllers.citoyen;
 
 import com.example.demo.models.*;
+import com.example.demo.models.enums.StatutIncidentEnum;
 import com.example.demo.repositories.UtilisateurRepository;
 import com.example.demo.services.Citoyen.IncidentService;
 import com.example.demo.services.Citoyen.CategorieIncidentService;
+import com.example.demo.services.incidentworkflow.IncidentWorkFlowService;
 import com.example.demo.services.quartier.QuartierService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
@@ -30,6 +32,9 @@ public class CitoyenController {
     private com.example.demo.repositories.QuartierRepository quartierRepository;
     @Autowired
     private UtilisateurRepository utilisateurRepository;
+
+    @Autowired
+    private IncidentWorkFlowService incidentWorkflowService;
 
     @GetMapping("/dashboard")
     public String showDashboard(Model model, HttpSession session) {
@@ -259,6 +264,51 @@ public class CitoyenController {
 
         redirectAttributes.addFlashAttribute("success", "Profil mis à jour avec succès.");
         return "redirect:/citoyens/profil";
+    }
+
+    //Cloturer incident
+    @GetMapping("incidents/{id}/feedback")
+    public String afficherFormFeedback(@PathVariable Long id,
+                                       HttpSession session,
+                                       Model model) {
+        Utilisateur citoyen = (Utilisateur) session.getAttribute("utilisateur");
+        if (citoyen == null) {
+            return "redirect:/login";
+        }
+
+        Incident incident = incidentWorkflowService.getIncidentByIdAndCitoyen(id, citoyen.getId());
+        if (incident.getStatut() != StatutIncidentEnum.RESOLU) {
+            return "redirect:/citoyens/incidents/mes-signalements";
+        }
+
+        model.addAttribute("incident", incident);
+        model.addAttribute("pageTitle", "Clôturer l'incident");
+        return "citoyens/incident-feedback";
+    }
+
+    // Nouveau endpoint : soumettre feedback + clôturer (POST)
+    @PostMapping("incidents/{id}/feedback")
+    public String soumettreFeedback(@PathVariable Long id,
+                                    @RequestParam("feedback") String feedback,
+                                    @RequestParam(value = "note", required = false) Integer note,
+                                    HttpSession session,
+                                    RedirectAttributes redirectAttributes) {
+
+        Utilisateur citoyen = (Utilisateur) session.getAttribute("utilisateur");
+        if (citoyen == null) {
+            return "redirect:/login";
+        }
+
+        try {
+            incidentWorkflowService.cloturerIncident(id, citoyen, feedback, note);
+            redirectAttributes.addFlashAttribute("success",
+                    "Merci pour votre avis, l'incident est maintenant clôturé.");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error",
+                    "Impossible de clôturer cet incident : " + e.getMessage());
+        }
+
+        return "redirect:/citoyens/incidents/mes-signalements";
     }
 
 

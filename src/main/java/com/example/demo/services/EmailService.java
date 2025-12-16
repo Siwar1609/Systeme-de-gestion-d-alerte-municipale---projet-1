@@ -194,4 +194,35 @@ public class EmailService {
             case SIGNALE -> "Signalé";
         };
     }
+
+    public void envoyerEmailAssignationIncident(Incident incident, Utilisateur agent) {
+        String sujet = "Nouvel incident assigné - #" + incident.getId();
+        String message = """
+        Bonjour %s,
+        
+        Un nouvel incident vous a été assigné :
+        
+        Titre : %s
+        Catégorie : %s
+        Quartier : %s
+        Priorité : %s
+        Localisation : %s
+        
+        Lien direct : http://localhost:8080/admin/incidents/%d
+        
+        Merci,
+        L'administrateur
+        """.formatted(
+                agent.getNom() + " " + agent.getNom(),
+                incident.getTitre(),
+                incident.getCategorie().getNom(),
+                incident.getQuartier() != null ? incident.getQuartier().getNom() : "—",
+                incident.getPriorite(),
+                incident.getLocalisation(),
+                incident.getId()
+        );
+
+        envoyerEmail(agent.getEmail(), sujet, message);
+    }
+
 }

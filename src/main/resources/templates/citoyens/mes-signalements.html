@@ -105,15 +105,11 @@
                                 </button>
                             </form>
                             <!-- Bouton Clôturer visible seulement si statut = RESOLU -->
-                            <form th:if="${incident.statut.name() == 'RESOLU'}"
-                                  th:action="@{'/citoyens/incidents/' + ${incident.id} + '/cloturer'}"
-                                  method="post"
-                                  class="d-inline"
-                                  onsubmit="return confirm('Confirmer la résolution de cet incident ?');">
-                                <button type="submit" class="btn btn-sm btn-success">
-                                    Clôturer
-                                </button>
-                            </form>
+                            <a th:if="${incident.statut.name() == 'RESOLU'}"
+                               th:href="@{'/citoyens/incidents/' + ${incident.id} + '/feedback'}"
+                               class="btn btn-sm btn-success">
+                                Clôturer / Donner un avis
+                            </a>
                         </td>
                     </tr>
                     </tbody>
