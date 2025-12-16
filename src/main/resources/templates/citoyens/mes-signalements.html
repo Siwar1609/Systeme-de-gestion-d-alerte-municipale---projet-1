@@ -41,8 +41,15 @@
                     </div>
                     <div class="col-md-2">
                         <label class="form-label small text-muted">Catégorie</label>
-                        <input type="text" name="categorieNom" class="form-control"
-                               th:value="${filtre?.categorieNom}" placeholder="Poubelle...">
+                        <select name="categorieNom" class="form-select">
+                            <option value="">Toutes catégories</option>
+                            <option th:each="cat : ${categories}"
+                                    th:value="${cat.nom}"
+                                    th:text="${cat.nom}"
+                                    th:selected="${filtre?.categorieNom == cat.nom}">
+                                Catégorie
+                            </option>
+                        </select>
                     </div>
                     <div class="col-md-2">
                         <button type="submit" class="btn btn-primary w-100">

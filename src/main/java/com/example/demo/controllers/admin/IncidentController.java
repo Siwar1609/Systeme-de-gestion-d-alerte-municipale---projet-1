@@ -4,9 +4,11 @@ import com.example.demo.models.Incident;
 import com.example.demo.models.Utilisateur;
 import com.example.demo.models.enums.RoleEnum;
 import com.example.demo.models.enums.PrioriteIncidentEnum;
+import com.example.demo.services.Citoyen.CategorieIncidentService;
 import com.example.demo.services.incidentworkflow.IncidentWorkFlowService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,6 +30,8 @@ import java.util.List;
 public class IncidentController {
 
     private final IncidentWorkFlowService incidentWorkflowService;
+    @Autowired
+    private CategorieIncidentService categorieService;
 
     // ----------- LISTE DES INCIDENTS -----------
     @GetMapping
@@ -60,6 +64,7 @@ public class IncidentController {
         model.addAttribute("pageTitle", "État des incidents");
         model.addAttribute("userNom", admin.getNom());
         model.addAttribute("incidents", incidents);
+        model.addAttribute("categories", categorieService.findAll());
         model.addAttribute("agents", incidentWorkflowService.getTousLesAgents());
 
         model.addAttribute("filtre", filtre);
