@@ -43,7 +43,7 @@
                     <th>ID</th>
                     <th>Nom</th>
                     <th>Email</th>
-                    <th>Quartier</th>
+
                     <th>Statut</th>
                     <th class="text-center">Actions</th>
                 </tr>
@@ -55,12 +55,7 @@
                     <td th:text="${citoyen.nom}"></td>
                     <td th:text="${citoyen.email}"></td>
 
-                    <td>
-                        <span th:if="${citoyen.quartier != null}"
-                              th:text="${citoyen.quartier.nom}"></span>
-                        <span th:if="${citoyen.quartier == null}"
-                              class="text-muted">—</span>
-                    </td>
+
 
                     <td>
                         <span th:if="${citoyen.compteActive}"
@@ -73,7 +68,7 @@
                     <td class="text-center">
 
                         <!-- ACTIVER / DESACTIVER -->
-                        <form th:action="@{/admin/citoyens/toggle/{id}(id=${citoyen.id})}"
+                        <form th:action="@{/admin/citoyens/{id}/toggle-status(id=${citoyen.id})}"
                               method="post"
                               class="d-inline">
                             <button type="submit"
@@ -83,8 +78,11 @@
                             </button>
                         </form>
 
+
+
+
                         <!-- SUPPRIMER -->
-                        <form th:action="@{/admin/citoyens/delete/{id}(id=${citoyen.id})}"
+                        <form th:action="@{/admin/citoyens/{id}/delete(id=${citoyen.id})}"
                               method="post"
                               class="d-inline"
                               onsubmit="return confirm('Voulez-vous vraiment supprimer ce citoyen ?');">
@@ -92,6 +90,7 @@
                                 <i class="fas fa-trash"></i>
                             </button>
                         </form>
+
 
                     </td>
                 </tr>

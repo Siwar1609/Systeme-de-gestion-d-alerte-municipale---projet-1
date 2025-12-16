@@ -108,6 +108,23 @@ public class AdminAgentService {
      * Gère la réinitialisation du mot de passe d'un agent
      */
     @Transactional
+    public String handleDeleteAgent(Long citoyenId, RedirectAttributes redirectAttributes) {
+        try {
+            Utilisateur agent = findAgentById(citoyenId);
+            utilisateurRepository.delete(agent);
+
+            redirectAttributes.addFlashAttribute("success", " Agent supprimé avec succès");
+            return "redirect:/admin/agents";
+
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            redirectAttributes.addFlashAttribute("error", " " + e.getMessage());
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error",
+                    "Erreur lors de la suppression: " + e.getMessage());
+        }
+        return "redirect:/admin/agents";
+    }
+    @Transactional
     public String handleResetAgentPassword(Long agentId, RedirectAttributes redirectAttributes) {
         try {
             Utilisateur agent = findAgentById(agentId);
