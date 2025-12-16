@@ -42,6 +42,7 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
 
 <script th:inline="javascript">
     /*<![CDATA[*/
@@ -79,7 +80,7 @@
         }
     });
 
-    // Graphique pie (quartiers)
+    // Graphique pie (quartiers) avec pourcentages
     new Chart(document.getElementById('quartierChart'), {
         type: 'pie',
         data: {
@@ -112,9 +113,19 @@
             responsive: true,
             plugins: {
                 legend: { position: 'bottom', labels: { padding: 20, boxWidth: 12 } },
-                title: { display: true, text: 'Répartition des incidents par quartier' }
+                title: { display: true, text: 'Répartition des incidents par quartier' },
+                datalabels: {
+                    color: '#fff',
+                    formatter: (value, context) => {
+                        let sum = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                        let percentage = (value * 100 / sum).toFixed(1) + '%';
+                        return percentage;
+                    },
+                    font: { weight: 'bold', size: 12 }
+                }
             }
-        }
+        },
+        plugins: [ChartDataLabels]
     });
     /*]]>*/
 </script>

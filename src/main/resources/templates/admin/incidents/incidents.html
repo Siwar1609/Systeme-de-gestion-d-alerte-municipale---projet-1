@@ -146,9 +146,24 @@
                         </select>
                         <button type="submit" class="btn btn-warning btn-sm w-100">Modifier Priorité</button>
                     </form>
+
                     <div th:if="${incident.agent != null}" class="text-success small text-center">
                         Agent déjà assigné
                     </div>
+
+                    <!-- BOUTON D'EXPORTATION DE RAPPORT -->
+                    <div class="mt-2"
+                         th:if="${incident.statut.name() == 'CLOTURE' and incident.feedbackCitoyen != null and !#strings.isEmpty(incident.feedbackCitoyen)}">
+                        <form th:action="@{/admin/incidents/genererRapport}" method="post">
+                            <input type="hidden" name="incidentId" th:value="${incident.id}">
+                            <select name="typeRapport" class="form-select form-select-sm mb-1" required>
+                                <option value="" disabled selected>-- Type de rapport --</option>
+                                <option th:each="t : ${T(com.example.demo.models.enums.TypeRapportEnum).values()}" th:value="${t}" th:text="${t}"></option>
+                            </select>
+                            <button class="btn btn-success btn-sm w-100">📄 Générer Rapport</button>
+                        </form>
+                    </div>
+
                 </td>
             </tr>
             <tr th:if="${incidents?.content == null or #lists.isEmpty(incidents.content)}">
