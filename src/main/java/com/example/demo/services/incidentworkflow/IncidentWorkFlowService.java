@@ -83,7 +83,7 @@ public class IncidentWorkFlowService {
             throw new RuntimeException("Utilisateur sélectionné n'est pas un agent municipal");
         }
 
-        // 🔐 Vérification service ↔ catégorie
+        // Vérification service ↔ catégorie
         if (agent.getService() != null && incident.getCategorie() != null) {
             if (!agent.getService().getNom().equals(incident.getCategorie().getNom())) {
                 throw new RuntimeException("L'agent ne traite pas cette catégorie d'incident");
