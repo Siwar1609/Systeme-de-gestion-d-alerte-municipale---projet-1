@@ -45,7 +45,7 @@ L’objectif est d’améliorer la **réactivité des autorités locales**, d’
 ### 👤 Gestion des utilisateurs
 
 * Inscription sécurisée avec validation
-* Authentification et autorisation (Spring Security)
+* Authentification et autorisation (http session et Spring Security pour OAuth2 seconnecter avec google)
 * Gestion des rôles :
 
   * **CITOYEN**
@@ -84,10 +84,10 @@ Les transitions sont contrôlées selon le rôle de l’utilisateur.
 * Tableaux de bord personnalisés par rôle
 * Statistiques par :
 
-  * Type d’incident
-  * Quartier
-  * Statut
-  * Délai de résolution
+  * nombre par type d’incident
+  * nombre incidents par quartier
+ 
+  
 * Export des rapports en **PDF / CSV**
 
 ### 🔍 Recherche & filtrage
@@ -99,13 +99,11 @@ Les transitions sont contrôlées selon le rôle de l’utilisateur.
 
 ## 🔐 Sécurité
 
-* Authentification via **Spring Security**
+* Authentification via google **Spring Security OAuth2**
 * Chiffrement des mots de passe (**BCrypt**)
 * Protection CSRF
-* Gestion fine des autorisations par rôle
-* Sécurisation des URLs (`/admin/**`, `/agent/**`, etc.)
+* Gestion fine des autorisations par rôle via les sessions
 
----
 
 ## 🧩 Modèle de données 
 
@@ -114,6 +112,9 @@ Les transitions sont contrôlées selon le rôle de l’utilisateur.
 * Quartier
 * Notification
 * Rapport
+* CategorieIncident
+* MunicipalService
+* FiltreIncident
 
 ---
 
