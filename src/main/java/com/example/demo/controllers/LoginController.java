@@ -25,7 +25,7 @@ public class LoginController {
 
     /**
      * Page de connexion
-     * ⚠️ Ne force PLUS la redirection vers un dashboard
+
      */
     @GetMapping("/login")
     public String showLoginForm(Model model,
@@ -46,7 +46,7 @@ public class LoginController {
 
     /**
      * Traitement de la connexion
-     * ✅ Redirection dashboard UNIQUEMENT après login
+     *  Redirection dashboard UNIQUEMENT après login
      */
     @PostMapping("/login")
     public String processLogin(

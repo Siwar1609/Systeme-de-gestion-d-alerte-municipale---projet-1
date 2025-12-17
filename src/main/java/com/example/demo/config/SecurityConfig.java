@@ -7,7 +7,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
@@ -19,14 +18,35 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+
         http
-                .csrf(csrf -> csrf.disable())  // Désactive CSRF pour les API REST
-                .authorizeHttpRequests(authz -> authz
-                        .requestMatchers("/api/citoyens/**").permitAll()  // Autorise TOUTES les routes citoyens
-                        .requestMatchers("/api/auth/**").permitAll()      // Autorise les routes d'authentification
-                        .requestMatchers("/**").permitAll()               // ✅ AJOUTEZ CETTE LIGNE - Autorise tout temporairement
-                        .anyRequest().permitAll()                         // ✅ AJOUTEZ CETTE LIGNE - Permet toutes les requêtes
-                );
+                // CSRF désactivé (formulaire + session)
+                .csrf(csrf -> csrf.disable())
+
+                //  Autorisations (TON système décide)
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(
+                                "/login",
+                                "/logout",
+                                "/oauth2/**",
+                                "/css/**",
+                                "/js/**",
+                                "/images/**"
+                        ).permitAll()
+                        .anyRequest().permitAll() //  Laisse passer, HttpSession gère
+                )
+
+                // OAuth2 uniquement comme fournisseur d'identité
+                .oauth2Login(oauth -> oauth
+                        .loginPage("/login")
+                        .defaultSuccessUrl("/oauth2/success", true)
+                )
+
+                //  Désactiver le login Spring Security
+                .formLogin(form -> form.disable())
+
+                //  Désactiver remember-me
+                .rememberMe(remember -> remember.disable());
 
         return http.build();
     }
