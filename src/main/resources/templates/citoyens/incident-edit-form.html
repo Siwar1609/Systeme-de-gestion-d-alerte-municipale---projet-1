@@ -121,8 +121,17 @@
 
                 <!-- Ajouter de nouvelles photos -->
                 <div class="mb-3">
-                    <label for="photos" class="form-label">Ajouter de nouvelles photos (optionnel)</label>
-                    <input type="file" id="photos" name="photos" class="form-control" multiple>
+                    <label class="form-label">Ajouter d'autres photos(Optionnel)</label>
+                    <input type="file"
+                           class="form-control"
+                           name="photos"
+                           multiple
+                           accept="image/jpeg,image/png,image/jpg,image/gif"
+                           onchange="validateFiles(this)">
+                    <div class="form-text">
+                        <i class="fas fa-info-circle me-1 text-info"></i>
+                        JPG, PNG, GIF uniquement | Max 5Mo/photo | Max 5 photos
+                    </div>
                 </div>
 
                 <div class="mt-4 d-flex justify-content-between">
@@ -138,6 +147,30 @@
         </div>
     </div>
 </div>
+<script>
+    function validateFiles(input) {
+        const maxSize = 5 * 1024 * 1024; // 5Mo
+        const maxFiles = 5;
+        const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/gif'];
 
+        Array.from(input.files).forEach((file, index) => {
+            if (index >= maxFiles) {
+                alert(`❌ Maximum ${maxFiles} photos autorisées`);
+                input.value = '';
+                return;
+            }
+            if (file.size > maxSize) {
+                alert(`❌ Photo ${index+1} trop lourde (${Math.round(file.size/1024/1024)}Mo > 5Mo)`);
+                input.value = '';
+                return;
+            }
+            if (!allowedTypes.includes(file.type)) {
+                alert(`❌ Type non autorisé: ${file.name}`);
+                input.value = '';
+                return;
+            }
+        });
+    }
+</script>
 </body>
 </html>

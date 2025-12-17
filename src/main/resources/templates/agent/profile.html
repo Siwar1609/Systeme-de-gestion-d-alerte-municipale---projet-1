@@ -62,8 +62,14 @@
                     </option>
                 </select>
             </div>
-
-            <button type="submit" class="btn btn-save w-100"><i class="fas fa-save"></i> Sauvegarder</button>
+            <div class="d-flex gap-2 mt-4">
+                <a th:href="@{/agent/dashboard}" class="btn btn-outline-light flex-fill">
+                    <i class="fas fa-arrow-left me-2"></i>Retour Dashboard
+                </a>
+                <button type="submit" class="btn btn-warning flex-fill">
+                    <i class="fas fa-save me-2"></i>Sauvegarder
+                </button>
+            </div>
         </form>
     </div>
 </div>

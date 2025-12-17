@@ -69,7 +69,6 @@
         <table class="table table-bordered table-hover align-middle">
             <thead class="table-dark">
             <tr>
-                <th>ID</th>
                 <th>
                     <a th:href="@{/agent/incidents(page=0, sortField='titre', sortDir=${sortDir == 'asc' ? 'desc' : 'asc'},
                             statut=${filtre.statut}, localisation=${filtre.localisation}, categorieNom=${filtre.categorieNom})}"
@@ -90,6 +89,7 @@
                     </a>
                 </th>
                 <th>Photos</th>
+                <th>Date Signalement</th>
                 <th>Citoyen</th>
                 <th>Catégorie</th>
                 <th>Priorité</th>
@@ -102,8 +102,6 @@
             <tbody>
             <!-- ✅ CHANGÉ : incidents.content au lieu de incidents -->
             <tr th:each="incident : ${incidents.content}">
-                <!-- TES CELLULES EXISTANTES (identiques) -->
-                <td th:text="${incident.id}"></td>
                 <td th:text="${incident.titre}"></td>
                 <td th:text="${incident.description}"></td>
                 <td>
@@ -120,6 +118,9 @@
                              style="max-height: 60px;">
                     </div>
                     <span th:if="${incident.nomsPhotos == null}">—</span>
+                </td>
+                <td>
+                    <span th:text="${#temporals.format(incident.dateSignalement, 'dd/MM HH:mm')}"></span>
                 </td>
                 <td><span th:text="${incident.citoyen != null ? incident.citoyen.nom : '—'}"></span></td>
                 <td th:text="${incident.categorie.nom}"></td>
@@ -168,7 +169,7 @@
                 </td>
             </tr>
 
-            <!-- ✅ ADAPTÉ : état vide -->
+            <!-- DAPTÉ : état vide -->
             <tr th:if="${incidents.content.isEmpty()}">
                 <td colspan="11" class="text-center text-muted py-5">
                     <i class="fas fa-search fa-3x d-block mb-3 opacity-50"></i>
