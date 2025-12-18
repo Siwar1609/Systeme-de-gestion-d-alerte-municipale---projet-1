@@ -144,7 +144,7 @@ public class InscriptionService {
     }
 
     // ===============================
-    // OAUTH2 GOOGLE (optionnel)
+    // OAUTH2 GOOGLE
     // ===============================
 
     @Transactional

@@ -28,7 +28,7 @@ public class RapportService {
             HttpServletResponse response
     ) throws IOException {
 
-        // ✅ PLUS DE LIMITATION : génération autorisée plusieurs fois
+        //  PLUS DE LIMITATION : génération autorisée plusieurs fois
         Rapport rapport = new Rapport();
         rapport.setIncident(incident);
         rapport.setAdmin(admin);
@@ -54,7 +54,7 @@ public class RapportService {
         );
 
         rapport.setContenu(contenu);
-        rapportRepository.save(rapport); // ✔ historique conservé
+        rapportRepository.save(rapport); //  historique conservé
 
         if (typeRapport == TypeRapportEnum.CSV) {
             genererCsv(incident, response);

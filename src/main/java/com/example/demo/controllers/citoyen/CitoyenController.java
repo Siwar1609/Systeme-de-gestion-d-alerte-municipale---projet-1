@@ -182,12 +182,12 @@ public class CitoyenController {
             return "redirect:/login";
         }
 
-        // ✅ TES attributs existants
+        //
         model.addAttribute("pageTitle", "Mes signalements");
         model.addAttribute("userNom", session.getAttribute("userNom"));
         model.addAttribute("categories", categorieService.findAll());
 
-        // ✅ NOUVEAU : Filtre + Pagination
+        //
         FiltreIncident filtre = new FiltreIncident();
         filtre.setStatut(statut);
         filtre.setLocalisation(localisation);
