@@ -78,9 +78,10 @@
         <table class="table table-bordered table-hover">
             <thead class="table-dark">
             <tr>
-                <th>ID</th>
+
                 <th><a href="/admin/incidents?sortField=titre&sortDir=asc" class="text-white">Titre</a></th>
                 <th>Description</th>
+                <th>Date de signalement</th>
                 <th><a href="/admin/incidents?sortField=localisation&sortDir=asc" class="text-white">Localisation</a></th>
                 <th>Photos</th>
                 <th>Citoyen</th>
@@ -94,9 +95,12 @@
             </thead>
             <tbody>
             <tr th:each="incident : ${incidents?.content}">
-                <td th:text="${incident.id}" class="text-center"></td>
+
                 <td th:text="${incident.titre}"></td>
                 <td th:text="${incident.description}"></td>
+                <td>
+                    <span th:text="${#temporals.format(incident.dateSignalement, 'dd/MM HH:mm')}"></span>
+                </td>
                 <td>
                     <span th:text="${incident.localisation}"></span><br/>
                     <small class="text-muted" th:text="'Lat : ' + ${incident.latitude} + ' / Lng : ' + ${incident.longitude}"></small>
