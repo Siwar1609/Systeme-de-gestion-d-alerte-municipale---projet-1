@@ -23,7 +23,7 @@ public class SecurityConfig {
                 // CSRF désactivé (formulaire + session)
                 .csrf(csrf -> csrf.disable())
 
-                //  Autorisations (TON système décide)
+                //  Autorisations
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 "/login",
