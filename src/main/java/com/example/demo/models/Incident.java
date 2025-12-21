@@ -80,6 +80,9 @@ public class Incident {
 
     public Utilisateur getCitoyen() { return citoyen; }
     public void setCitoyen(Utilisateur citoyen) { this.citoyen = citoyen; }
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "cluster_id")
+    private IncidentCluster cluster;
 
 
     public PrioriteIncidentEnum getPriorite() { return priorite; }

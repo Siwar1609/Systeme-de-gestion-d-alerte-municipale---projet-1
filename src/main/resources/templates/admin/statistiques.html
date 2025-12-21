@@ -4,11 +4,12 @@
     <meta charset="UTF-8">
     <title th:text="${pageTitle}">Statistiques des incidents</title>
 
+    <!-- Bootstrap & Font Awesome -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 
     <style>
-        /* Important pour l’export PDF */
+        /* Zone à exporter en PDF */
         #stats-content {
             background-color: white;
             padding: 20px;
@@ -21,9 +22,10 @@
 
     <h2 class="mb-4" th:text="${pageTitle}">Statistiques des incidents</h2>
 
-    <!-- ZONE À EXPORTER -->
+    <!-- Contenu des graphiques -->
     <div id="stats-content">
         <div class="row">
+            <!-- Graphique par catégorie -->
             <div class="col-md-6 mb-4">
                 <div class="card shadow-sm">
                     <div class="card-header bg-info text-white">
@@ -35,6 +37,7 @@
                 </div>
             </div>
 
+            <!-- Graphique par quartier -->
             <div class="col-md-6 mb-4">
                 <div class="card shadow-sm">
                     <div class="card-header bg-success text-white">
@@ -48,7 +51,7 @@
         </div>
     </div>
 
-    <!-- BOUTONS -->
+    <!-- Boutons -->
     <div class="mt-3">
         <a th:href="@{/admin/dashboard}" class="btn btn-secondary">
             <i class="fas fa-arrow-left"></i> Retour
@@ -60,7 +63,7 @@
     </div>
 </div>
 
-<!-- LIBRAIRIES -->
+<!-- Librairies JS -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
@@ -68,6 +71,7 @@
 
 <script th:inline="javascript">
     /*<![CDATA[*/
+    // Données injectées depuis le controller
     var categoriesData = /*[[${incidentsParCategorieJson}]]*/ {};
     var quartiersData = /*[[${incidentsParQuartierJson}]]*/ {};
 
@@ -77,7 +81,7 @@
     var quartierLabels = Object.keys(quartiersData);
     var quartierValues = Object.values(quartiersData);
 
-    // BAR CHART
+    // Graphique barres pour catégories
     new Chart(document.getElementById('categorieChart'), {
         type: 'bar',
         data: {
@@ -99,7 +103,7 @@
         }
     });
 
-    // PIE CHART AVEC POURCENTAGE
+    // Graphique camembert pour quartiers
     new Chart(document.getElementById('quartierChart'), {
         type: 'pie',
         data: {
@@ -128,17 +132,13 @@
         plugins: [ChartDataLabels]
     });
 
-    // EXPORT PDF
+    // Fonction export PDF
     async function exportPDF() {
         const { jsPDF } = window.jspdf;
         const pdf = new jsPDF('p', 'mm', 'a4');
 
         const element = document.getElementById('stats-content');
-
-        const canvas = await html2canvas(element, {
-            scale: 2
-        });
-
+        const canvas = await html2canvas(element, { scale: 2 });
         const imgData = canvas.toDataURL('image/png');
 
         const imgWidth = 190;
@@ -151,6 +151,5 @@
     }
     /*]]>*/
 </script>
-
 </body>
 </html>
